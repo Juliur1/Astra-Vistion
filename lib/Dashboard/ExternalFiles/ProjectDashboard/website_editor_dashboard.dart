@@ -3510,35 +3510,75 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
               if (interaction['actions'] != null &&
                   interaction['actions'].isNotEmpty)
                 ...interaction['actions'].map<Widget>((action) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A1A),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.account_tree_outlined,
-                            color: Colors.white70, size: 16),
-                        const SizedBox(width: 8),
-                        Text(
-                          action['name'] ?? action['type'],
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                                             onTap: () {
+                         // Check if this is a node action - if so, open nodes editor directly
+                         if (action['type'] == 'node') {
+                           print('Node action clicked! Opening nodes editor...');
+                           setState(() {
+                             _showNodesPage = true;
+                             _currentEditingInteraction = interaction;
+                           });
+                         }
+                       },
+                                              child: Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: action['type'] == 'node' 
+                              ? const Color(0xFF1F2A1F) 
+                              : const Color(0xFF1A1A1A),
+                            borderRadius: BorderRadius.circular(4),
+                            border: action['type'] == 'node'
+                              ? Border.all(color: Colors.green.withOpacity(0.3), width: 1)
+                              : null,
+                          ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              action['type'] == 'node' 
+                                ? Icons.account_tree_outlined
+                                : Icons.account_tree_outlined,
+                              color: action['type'] == 'node' 
+                                ? Colors.green 
+                                : Colors.white70, 
+                              size: 16
+                            ),
+                            const SizedBox(width: 8),
+                                                         Text(
+                               action['name'] ?? action['type'],
+                               style: TextStyle(
+                                 color: action['type'] == 'node' 
+                                   ? Colors.white 
+                                   : Colors.white70, 
+                                 fontSize: 14,
+                                 fontWeight: action['type'] == 'node' 
+                                   ? FontWeight.w500 
+                                   : FontWeight.normal,
+                               ),
+                             ),
+                            const Spacer(),
+                            // Show open icon for node actions
+                            if (action['type'] == 'node')
+                              Icon(Icons.open_in_new, color: Colors.green, size: 14),
+                            if (action['type'] == 'node')
+                              const SizedBox(width: 8),
+                            Icon(Icons.edit, color: Colors.white54, size: 16),
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  interaction['actions'].remove(action);
+                                });
+                              },
+                              child: Icon(Icons.delete_outline,
+                                  color: Colors.white54, size: 16),
+                            ),
+                          ],
                         ),
-                        const Spacer(),
-                        Icon(Icons.edit, color: Colors.white54, size: 16),
-                        const SizedBox(width: 8),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              interaction['actions'].remove(action);
-                            });
-                          },
-                          child: Icon(Icons.delete_outline,
-                              color: Colors.white54, size: 16),
-                        ),
-                      ],
+                      ),
                     ),
                   );
                 }).toList()
@@ -3566,6 +3606,10 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                           'target': '',
                           'enabled': true
                         });
+                        // Add nodeName to the interaction if it doesn't exist
+                        if (interaction['nodeName'] == null) {
+                          interaction['nodeName'] = 'Node Action Logic';
+                        }
                       }
                     });
                   },
