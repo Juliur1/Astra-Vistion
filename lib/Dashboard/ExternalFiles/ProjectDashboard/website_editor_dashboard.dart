@@ -745,252 +745,27 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
 
   // Build interaction-specific node editor
   Widget _buildInteractionNodeEditor(Map<String, dynamic> interaction) {
-    return Container(
-      color: Color(0xFF151515),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Color(0xFF2D2D2D),
-              border: Border(bottom: BorderSide(color: Colors.white24)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.account_tree, color: Colors.green, size: 24),
-                SizedBox(width: 12),
-                Text(
-                  'Node Editor - ${interaction['nodeName'] ?? 'Unnamed Node'}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Spacer(),
-                // Back button
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _currentEditingInteraction = null;
-                    });
-                  },
-                ),
-                // Close button
-                IconButton(
-                  icon: Icon(Icons.close, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _showNodesPage = false;
-                      _currentEditingInteraction = null;
-                    });
-                  },
-                ),
-              ],
-            ),
+    return BlenderNodesEditor(
+      interaction: interaction,
+      onClose: () {
+        setState(() {
+          _showNodesPage = false;
+          _currentEditingInteraction = null;
+        });
+      },
+      onBack: () {
+        setState(() {
+          _currentEditingInteraction = null;
+        });
+      },
+      onSave: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Node setup saved for "${interaction['nodeName']}"'),
+            backgroundColor: Colors.green,
           ),
-          // Node editor area
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  // Left panel - Node library
-                  Container(
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF232323),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Text(
-                            'Node Library',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: ListView(
-                            children: [
-                              _buildNodeLibraryCategory('Input', [
-                                {'name': 'Mouse Input', 'icon': Icons.mouse},
-                                {
-                                  'name': 'Keyboard Input',
-                                  'icon': Icons.keyboard
-                                },
-                                {'name': 'Time', 'icon': Icons.access_time},
-                                {'name': 'Variable', 'icon': Icons.data_usage},
-                              ]),
-                              _buildNodeLibraryCategory('Math', [
-                                {'name': 'Add', 'icon': Icons.add},
-                                {'name': 'Multiply', 'icon': Icons.close},
-                                {
-                                  'name': 'Compare',
-                                  'icon': Icons.compare_arrows
-                                },
-                                {'name': 'Random', 'icon': Icons.shuffle},
-                              ]),
-                              _buildNodeLibraryCategory('Logic', [
-                                {'name': 'If/Else', 'icon': Icons.call_split},
-                                {'name': 'And', 'icon': Icons.add_circle},
-                                {
-                                  'name': 'Or',
-                                  'icon': Icons.radio_button_unchecked
-                                },
-                                {'name': 'Not', 'icon': Icons.not_interested},
-                              ]),
-                              _buildNodeLibraryCategory('Animation', [
-                                {'name': 'Move', 'icon': Icons.open_with},
-                                {'name': 'Rotate', 'icon': Icons.rotate_right},
-                                {'name': 'Scale', 'icon': Icons.zoom_out_map},
-                                {'name': 'Fade', 'icon': Icons.opacity},
-                              ]),
-                              _buildNodeLibraryCategory('Effects', [
-                                {'name': 'Color Change', 'icon': Icons.palette},
-                                {'name': 'Shadow', 'icon': Icons.blur_on},
-                                {'name': 'Glow', 'icon': Icons.brightness_high},
-                                {
-                                  'name': 'Filter',
-                                  'icon': Icons.filter_vintage
-                                },
-                              ]),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  // Main node canvas
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF151515),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.white12),
-                      ),
-                      child: Stack(
-                        children: [
-                          // Grid background
-                          CustomPaint(
-                            painter: NodeGridPainter(),
-                            size: Size.infinite,
-                          ),
-                          // Node canvas content
-                          if (interaction['nodeData'] == null ||
-                              interaction['nodeData']['nodes'] == null ||
-                              interaction['nodeData']['nodes'].isEmpty)
-                            Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.account_tree,
-                                    color: Colors.green.withOpacity(0.5),
-                                    size: 64,
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    'Node Canvas',
-                                    style: TextStyle(
-                                      color: Colors.white24,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Drag nodes from the library to create logic\nfor "${interaction['nodeName'] ?? 'this interaction'}"',
-                                    style: TextStyle(
-                                      color: Colors.white24,
-                                      fontSize: 14,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            )
-                          else
-                            // Show existing nodes
-                            _buildExistingNodes(interaction['nodeData']),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Footer with controls
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Color(0xFF2D2D2D),
-              border: Border(top: BorderSide(color: Colors.white24)),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  'Trigger: ${_getNameForType(interaction['type'])}',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-                Spacer(),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      interaction['nodeData'] = {
-                        'nodes': [],
-                        'connections': [],
-                        'created': DateTime.now().toIso8601String(),
-                      };
-                    });
-                  },
-                  icon: Icon(Icons.clear_all),
-                  label: Text('Clear All'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white24),
-                  ),
-                ),
-                SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _showNodesPage = false;
-                      _currentEditingInteraction = null;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Node setup saved for "${interaction['nodeName']}"'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.save),
-                  label: Text('Save & Close'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -10060,5 +9835,1113 @@ class _TimelineRulerPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+// Professional Blender-like Nodes Editor
+class BlenderNodesEditor extends StatefulWidget {
+  final Map<String, dynamic> interaction;
+  final VoidCallback onClose;
+  final VoidCallback onBack;
+  final VoidCallback onSave;
 
+  const BlenderNodesEditor({
+    Key? key,
+    required this.interaction,
+    required this.onClose,
+    required this.onBack,
+    required this.onSave,
+  }) : super(key: key);
 
+  @override
+  _BlenderNodesEditorState createState() => _BlenderNodesEditorState();
+}
+
+class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
+  // Viewport controls
+  double _zoom = 1.0;
+  Offset _panOffset = Offset.zero;
+  Offset? _lastPanPosition;
+  
+  // Node library
+  bool _showNodeLibrary = false;
+  List<Map<String, dynamic>> _nodes = [];
+  List<Map<String, dynamic>> _connections = [];
+  
+  // Selection and dragging
+  String? _selectedNodeId;
+  String? _draggingNodeId;
+  Offset? _dragStartPosition;
+  
+  // Connection system
+  bool _isConnecting = false;
+  Map<String, dynamic>? _connectionStart;
+  Offset? _connectionEndPos;
+  
+  // Focus node for keyboard shortcuts
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNodeData();
+    _focusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _loadNodeData() {
+    if (widget.interaction['nodeData'] != null) {
+      _nodes = List<Map<String, dynamic>>.from(
+        widget.interaction['nodeData']['nodes'] ?? []
+      );
+      _connections = List<Map<String, dynamic>>.from(
+        widget.interaction['nodeData']['connections'] ?? []
+      );
+    }
+  }
+
+  void _saveNodeData() {
+    widget.interaction['nodeData'] = {
+      'nodes': _nodes,
+      'connections': _connections,
+      'viewport': {
+        'zoom': _zoom,
+        'panX': _panOffset.dx,
+        'panY': _panOffset.dy,
+      },
+      'updated': DateTime.now().toIso8601String(),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF393939),
+      body: Focus(
+        focusNode: _focusNode,
+        onKeyEvent: _handleKeyEvent,
+        child: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: Stack(
+                children: [
+                  _buildMainCanvas(),
+                  if (_showNodeLibrary) _buildNodeLibrary(),
+                  _buildViewportControls(),
+                ],
+              ),
+            ),
+            _buildFooter(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent) {
+      // Shift + A to toggle node library
+      if (event.logicalKey == LogicalKeyboardKey.keyA && 
+          HardwareKeyboard.instance.isShiftPressed) {
+        setState(() {
+          _showNodeLibrary = !_showNodeLibrary;
+        });
+        return KeyEventResult.handled;
+      }
+      
+      // Delete key to delete selected node
+      if (event.logicalKey == LogicalKeyboardKey.delete && _selectedNodeId != null) {
+        _deleteSelectedNode();
+        return KeyEventResult.handled;
+      }
+      
+      // G key for grab/move mode
+      if (event.logicalKey == LogicalKeyboardKey.keyG && _selectedNodeId != null) {
+        // TODO: Implement grab mode
+        return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      height: 60,
+      decoration: const BoxDecoration(
+        color: Color(0xFF2D2D2D),
+        border: Border(bottom: BorderSide(color: Color(0xFF5A5A5A))),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          Icon(Icons.account_tree, color: Colors.orange, size: 24),
+          const SizedBox(width: 12),
+          Text(
+            'Nodes Editor - ${widget.interaction['nodeName'] ?? 'Untitled'}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Spacer(),
+          
+          // View controls
+          _buildHeaderButton(
+            icon: Icons.zoom_in,
+            tooltip: 'Zoom In',
+            onPressed: () => _zoomIn(),
+          ),
+          _buildHeaderButton(
+            icon: Icons.zoom_out,
+            tooltip: 'Zoom Out', 
+            onPressed: () => _zoomOut(),
+          ),
+          _buildHeaderButton(
+            icon: Icons.center_focus_strong,
+            tooltip: 'Frame All (Home)',
+            onPressed: () => _frameAll(),
+          ),
+          
+          const SizedBox(width: 16),
+          Container(width: 1, height: 30, color: const Color(0xFF5A5A5A)),
+          const SizedBox(width: 16),
+          
+          // Action buttons
+          _buildHeaderButton(
+            icon: Icons.add,
+            tooltip: 'Add Node (Shift+A)',
+            onPressed: () => setState(() => _showNodeLibrary = !_showNodeLibrary),
+          ),
+          
+          const SizedBox(width: 16),
+          Container(width: 1, height: 30, color: const Color(0xFF5A5A5A)),
+          const SizedBox(width: 16),
+          
+          // Navigation buttons
+          _buildHeaderButton(
+            icon: Icons.arrow_back,
+            tooltip: 'Back',
+            onPressed: widget.onBack,
+          ),
+          _buildHeaderButton(
+            icon: Icons.close,
+            tooltip: 'Close',
+            onPressed: widget.onClose,
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(4),
+          onTap: onPressed,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, color: Colors.white70, size: 18),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainCanvas() {
+    return Container(
+      color: const Color(0xFF393939),
+      child: Listener(
+        onPointerSignal: (pointerSignal) {
+          if (pointerSignal is PointerScrollEvent) {
+            _handleMouseWheel(pointerSignal);
+          }
+        },
+        child: GestureDetector(
+          onPanStart: _onPanStart,
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          onTap: _onCanvasTap,
+          child: CustomPaint(
+            painter: BlenderNodeCanvasPainter(
+              nodes: _nodes,
+              connections: _connections,
+              zoom: _zoom,
+              panOffset: _panOffset,
+              selectedNodeId: _selectedNodeId,
+              isConnecting: _isConnecting,
+              connectionStart: _connectionStart,
+              connectionEndPos: _connectionEndPos,
+            ),
+            size: Size.infinite,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNodeLibrary() {
+    return Positioned(
+      left: 20,
+      top: 20,
+      child: Container(
+        width: 300,
+        height: 400,
+        decoration: BoxDecoration(
+          color: const Color(0xFF2D2D2D),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF5A5A5A)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: Color(0xFF454545),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.library_add, color: Colors.orange, size: 20),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Add Node',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  InkWell(
+                    onTap: () => setState(() => _showNodeLibrary = false),
+                    child: const Icon(Icons.close, color: Colors.white70, size: 18),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Search bar
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: TextField(
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Search nodes...',
+                  hintStyle: TextStyle(color: Colors.white38),
+                  prefixIcon: Icon(Icons.search, color: Colors.white38),
+                  filled: true,
+                  fillColor: const Color(0xFF1A1A1A),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+              ),
+            ),
+            
+            // Node categories
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                children: [
+                  _buildNodeCategory('Input', [
+                    {'name': 'Mouse Input', 'type': 'mouse_input', 'color': Colors.blue},
+                    {'name': 'Keyboard Input', 'type': 'keyboard_input', 'color': Colors.blue},
+                    {'name': 'Timer', 'type': 'timer', 'color': Colors.blue},
+                    {'name': 'Variable', 'type': 'variable', 'color': Colors.blue},
+                  ]),
+                  _buildNodeCategory('Math', [
+                    {'name': 'Add', 'type': 'math_add', 'color': Colors.purple},
+                    {'name': 'Multiply', 'type': 'math_multiply', 'color': Colors.purple},
+                    {'name': 'Compare', 'type': 'math_compare', 'color': Colors.purple},
+                    {'name': 'Random', 'type': 'math_random', 'color': Colors.purple},
+                  ]),
+                  _buildNodeCategory('Logic', [
+                    {'name': 'If/Else', 'type': 'logic_if', 'color': Colors.green},
+                    {'name': 'And', 'type': 'logic_and', 'color': Colors.green},
+                    {'name': 'Or', 'type': 'logic_or', 'color': Colors.green},
+                    {'name': 'Not', 'type': 'logic_not', 'color': Colors.green},
+                  ]),
+                  _buildNodeCategory('Animation', [
+                    {'name': 'Move', 'type': 'anim_move', 'color': Colors.orange},
+                    {'name': 'Rotate', 'type': 'anim_rotate', 'color': Colors.orange},
+                    {'name': 'Scale', 'type': 'anim_scale', 'color': Colors.orange},
+                    {'name': 'Fade', 'type': 'anim_fade', 'color': Colors.orange},
+                  ]),
+                  _buildNodeCategory('Output', [
+                    {'name': 'Console Log', 'type': 'output_log', 'color': Colors.red},
+                    {'name': 'Set Variable', 'type': 'output_variable', 'color': Colors.red},
+                    {'name': 'Trigger Event', 'type': 'output_event', 'color': Colors.red},
+                  ]),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNodeCategory(String title, List<Map<String, dynamic>> nodes) {
+    return ExpansionTile(
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      iconColor: Colors.white70,
+      collapsedIconColor: Colors.white38,
+      children: nodes.map((node) {
+        return ListTile(
+          dense: true,
+          leading: Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: node['color'],
+              shape: BoxShape.circle,
+            ),
+          ),
+          title: Text(
+            node['name'],
+            style: const TextStyle(color: Colors.white70, fontSize: 13),
+          ),
+          onTap: () => _addNode(node),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildViewportControls() {
+    return Positioned(
+      right: 20,
+      bottom: 20,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2D2D2D),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFF5A5A5A)),
+            ),
+            child: Text(
+              'Zoom: ${(_zoom * 100).toInt()}%',
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF2D2D2D),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFF5A5A5A)),
+            ),
+            child: Column(
+              children: [
+                _buildViewportButton(Icons.add, () => _zoomIn()),
+                Container(height: 1, color: const Color(0xFF5A5A5A)),
+                _buildViewportButton(Icons.remove, () => _zoomOut()),
+                Container(height: 1, color: const Color(0xFF5A5A5A)),
+                _buildViewportButton(Icons.center_focus_strong, () => _frameAll()),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewportButton(IconData icon, VoidCallback onPressed) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        child: Container(
+          width: 40,
+          height: 40,
+          child: Icon(icon, color: Colors.white70, size: 18),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Container(
+      height: 50,
+      decoration: const BoxDecoration(
+        color: Color(0xFF2D2D2D),
+        border: Border(top: BorderSide(color: Color(0xFF5A5A5A))),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          Text(
+            'Trigger: ${_getInteractionTypeName(widget.interaction['type'])}',
+            style: const TextStyle(color: Colors.white70, fontSize: 13),
+          ),
+          const SizedBox(width: 24),
+          Text(
+            'Nodes: ${_nodes.length}',
+            style: const TextStyle(color: Colors.white38, fontSize: 13),
+          ),
+          const SizedBox(width: 24),
+          Text(
+            'Connections: ${_connections.length}',
+            style: const TextStyle(color: Colors.white38, fontSize: 13),
+          ),
+          const Spacer(),
+          
+          // Help text
+          Text(
+            'Shift+A: Add Node  •  Del: Delete  •  Mouse: Pan/Zoom',
+            style: const TextStyle(color: Colors.white38, fontSize: 11),
+          ),
+          const SizedBox(width: 24),
+          
+          // Action buttons
+          TextButton.icon(
+            onPressed: _clearAll,
+            icon: const Icon(Icons.clear_all, size: 16),
+            label: const Text('Clear All'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white70,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton.icon(
+            onPressed: () {
+              _saveNodeData();
+              widget.onSave();
+              widget.onClose();
+            },
+            icon: const Icon(Icons.save, size: 16),
+            label: const Text('Save & Close'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+    );
+  }
+
+  // Viewport controls
+  void _zoomIn() {
+    setState(() {
+      _zoom = (_zoom * 1.2).clamp(0.1, 5.0);
+    });
+  }
+
+  void _zoomOut() {
+    setState(() {
+      _zoom = (_zoom / 1.2).clamp(0.1, 5.0);
+    });
+  }
+
+  void _frameAll() {
+    setState(() {
+      _zoom = 1.0;
+      _panOffset = Offset.zero;
+    });
+  }
+
+  void _handleMouseWheel(PointerScrollEvent event) {
+    const zoomSensitivity = 0.1;
+    final zoomDelta = -event.scrollDelta.dy * zoomSensitivity;
+    
+    setState(() {
+      final oldZoom = _zoom;
+      _zoom = (_zoom + zoomDelta).clamp(0.1, 5.0);
+      
+      // Zoom towards mouse position
+      final zoomRatio = _zoom / oldZoom;
+      final mousePos = event.localPosition;
+      _panOffset = mousePos - (mousePos - _panOffset) * zoomRatio;
+    });
+  }
+
+  // Pan handling
+  void _onPanStart(DragStartDetails details) {
+    _lastPanPosition = details.localPosition;
+    
+    // Check if we're starting to connect from a socket
+    final socket = _getSocketAtPosition(details.localPosition);
+    if (socket != null) {
+      setState(() {
+        _isConnecting = true;
+        _connectionStart = socket;
+        _connectionEndPos = details.localPosition;
+      });
+      return;
+    }
+    
+    // Check if we're starting to drag a node
+    final nodeId = _getNodeAtPosition(details.localPosition);
+    if (nodeId != null) {
+      setState(() {
+        _selectedNodeId = nodeId;
+        _draggingNodeId = nodeId;
+        _dragStartPosition = details.localPosition;
+      });
+    }
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    if (_isConnecting) {
+      // Update connection end position
+      setState(() {
+        _connectionEndPos = details.localPosition;
+      });
+    } else if (_draggingNodeId != null) {
+      // Drag node
+      final delta = (details.localPosition - _dragStartPosition!) / _zoom;
+      final nodeIndex = _nodes.indexWhere((n) => n['id'] == _draggingNodeId);
+      if (nodeIndex != -1) {
+        setState(() {
+          _nodes[nodeIndex]['x'] = (_nodes[nodeIndex]['x'] ?? 0.0) + delta.dx;
+          _nodes[nodeIndex]['y'] = (_nodes[nodeIndex]['y'] ?? 0.0) + delta.dy;
+        });
+        _dragStartPosition = details.localPosition;
+      }
+    } else if (_lastPanPosition != null) {
+      // Pan viewport
+      final delta = details.localPosition - _lastPanPosition!;
+      setState(() {
+        _panOffset += delta;
+      });
+      _lastPanPosition = details.localPosition;
+    }
+  }
+
+  void _onPanEnd(DragEndDetails details) {
+    if (_isConnecting) {
+      // Check if we ended on a valid socket
+      final endSocket = _getSocketAtPosition(details.localPosition);
+      if (endSocket != null && _connectionStart != null) {
+        _createConnection(_connectionStart!, endSocket);
+      }
+      setState(() {
+        _isConnecting = false;
+        _connectionStart = null;
+        _connectionEndPos = null;
+      });
+    }
+    
+    _lastPanPosition = null;
+    _draggingNodeId = null;
+    _dragStartPosition = null;
+  }
+
+  void _onCanvasTap(TapUpDetails details) {
+    final nodeId = _getNodeAtPosition(details.localPosition);
+    setState(() {
+      _selectedNodeId = nodeId;
+    });
+  }
+
+  String? _getNodeAtPosition(Offset position) {
+    // Transform screen position to world position
+    final worldPos = (position - _panOffset) / _zoom;
+    
+    for (final node in _nodes) {
+      final nodeX = node['x'] ?? 0.0;
+      final nodeY = node['y'] ?? 0.0;
+      const nodeWidth = 150.0;
+      const nodeHeight = 80.0;
+      
+      if (worldPos.dx >= nodeX && worldPos.dx <= nodeX + nodeWidth &&
+          worldPos.dy >= nodeY && worldPos.dy <= nodeY + nodeHeight) {
+        return node['id'];
+      }
+    }
+    return null;
+  }
+
+  Map<String, dynamic>? _getSocketAtPosition(Offset position) {
+    final worldPos = (position - _panOffset) / _zoom;
+    const socketRadius = 8.0; // Larger hit area
+    
+    for (final node in _nodes) {
+      final nodeX = node['x'] ?? 0.0;
+      final nodeY = node['y'] ?? 0.0;
+      const nodeWidth = 150.0;
+      
+      // Check input sockets
+      final inputs = node['inputs'] as List<dynamic>? ?? [];
+      for (int i = 0; i < inputs.length; i++) {
+        final socketY = nodeY + 30 + (i * 16);
+        final socketCenter = Offset(nodeX - 4, socketY);
+        
+        if ((worldPos - socketCenter).distance <= socketRadius) {
+          return {
+            'nodeId': node['id'],
+            'type': 'input',
+            'index': i,
+            'dataType': inputs[i]['type'],
+            'position': socketCenter,
+          };
+        }
+      }
+      
+      // Check output sockets
+      final outputs = node['outputs'] as List<dynamic>? ?? [];
+      for (int i = 0; i < outputs.length; i++) {
+        final socketY = nodeY + 30 + (i * 16);
+        final socketCenter = Offset(nodeX + nodeWidth + 4, socketY);
+        
+        if ((worldPos - socketCenter).distance <= socketRadius) {
+          return {
+            'nodeId': node['id'],
+            'type': 'output',
+            'index': i,
+            'dataType': outputs[i]['type'],
+            'position': socketCenter,
+          };
+        }
+      }
+    }
+    return null;
+  }
+
+  void _createConnection(Map<String, dynamic> startSocket, Map<String, dynamic> endSocket) {
+    // Don't connect socket to itself or sockets of the same type
+    if (startSocket['nodeId'] == endSocket['nodeId'] ||
+        startSocket['type'] == endSocket['type']) {
+      return;
+    }
+    
+    // Ensure we're connecting output to input
+    Map<String, dynamic> outputSocket, inputSocket;
+    if (startSocket['type'] == 'output') {
+      outputSocket = startSocket;
+      inputSocket = endSocket;
+    } else {
+      outputSocket = endSocket;
+      inputSocket = startSocket;
+    }
+    
+    // Check if this connection already exists
+    final existingConnection = _connections.firstWhere(
+      (conn) => 
+        conn['fromNode'] == outputSocket['nodeId'] &&
+        conn['fromIndex'] == outputSocket['index'] &&
+        conn['toNode'] == inputSocket['nodeId'] &&
+        conn['toIndex'] == inputSocket['index'],
+      orElse: () => <String, dynamic>{},
+    );
+    
+    if (existingConnection.isNotEmpty) return;
+    
+    // Create new connection
+    final newConnection = {
+      'id': 'conn_${DateTime.now().millisecondsSinceEpoch}',
+      'fromNode': outputSocket['nodeId'],
+      'fromIndex': outputSocket['index'],
+      'toNode': inputSocket['nodeId'],
+      'toIndex': inputSocket['index'],
+      'dataType': outputSocket['dataType'],
+    };
+    
+    setState(() {
+      _connections.add(newConnection);
+    });
+    _saveNodeData();
+  }
+
+  void _addNode(Map<String, dynamic> nodeTemplate) {
+    final newNode = {
+      'id': 'node_${DateTime.now().millisecondsSinceEpoch}',
+      'type': nodeTemplate['type'],
+      'name': nodeTemplate['name'],
+      'color': (nodeTemplate['color'] as Color).value,
+      'x': 100.0 + (_nodes.length * 200.0) % 800.0,
+      'y': 100.0 + (_nodes.length ~/ 4) * 120.0,
+      'inputs': _getNodeInputs(nodeTemplate['type']),
+      'outputs': _getNodeOutputs(nodeTemplate['type']),
+    };
+
+    setState(() {
+      _nodes.add(newNode);
+      _selectedNodeId = newNode['id'];
+      _showNodeLibrary = false;
+    });
+    _saveNodeData();
+  }
+
+  List<Map<String, dynamic>> _getNodeInputs(String nodeType) {
+    switch (nodeType) {
+      case 'math_add':
+        return [
+          {'name': 'A', 'type': 'float'},
+          {'name': 'B', 'type': 'float'},
+        ];
+      case 'math_multiply':
+        return [
+          {'name': 'A', 'type': 'float'},
+          {'name': 'B', 'type': 'float'},
+        ];
+      case 'logic_if':
+        return [
+          {'name': 'Condition', 'type': 'bool'},
+          {'name': 'True', 'type': 'exec'},
+          {'name': 'False', 'type': 'exec'},
+        ];
+      default:
+        return [];
+    }
+  }
+
+  List<Map<String, dynamic>> _getNodeOutputs(String nodeType) {
+    switch (nodeType) {
+      case 'math_add':
+      case 'math_multiply':
+        return [{'name': 'Result', 'type': 'float'}];
+      case 'logic_if':
+        return [{'name': 'Output', 'type': 'exec'}];
+      case 'mouse_input':
+        return [
+          {'name': 'X', 'type': 'float'},
+          {'name': 'Y', 'type': 'float'},
+          {'name': 'Clicked', 'type': 'bool'},
+        ];
+      default:
+        return [{'name': 'Output', 'type': 'exec'}];
+    }
+  }
+
+  void _deleteSelectedNode() {
+    if (_selectedNodeId != null) {
+      setState(() {
+        _nodes.removeWhere((node) => node['id'] == _selectedNodeId);
+        _connections.removeWhere((conn) => 
+          conn['fromNode'] == _selectedNodeId || conn['toNode'] == _selectedNodeId);
+        _selectedNodeId = null;
+      });
+      _saveNodeData();
+    }
+  }
+
+  void _clearAll() {
+    setState(() {
+      _nodes.clear();
+      _connections.clear();
+      _selectedNodeId = null;
+    });
+    _saveNodeData();
+  }
+
+  String _getInteractionTypeName(String type) {
+    switch (type) {
+      case 'on_click': return 'On Click';
+      case 'on_hover': return 'On Hover';
+      case 'on_timer': return 'On Timer';
+      case 'node': return 'Node Action';
+      default: return type;
+    }
+  }
+}
+
+// Custom painter for the node canvas
+class BlenderNodeCanvasPainter extends CustomPainter {
+  final List<Map<String, dynamic>> nodes;
+  final List<Map<String, dynamic>> connections;
+  final double zoom;
+  final Offset panOffset;
+  final String? selectedNodeId;
+  final bool isConnecting;
+  final Map<String, dynamic>? connectionStart;
+  final Offset? connectionEndPos;
+
+  BlenderNodeCanvasPainter({
+    required this.nodes,
+    required this.connections,
+    required this.zoom,
+    required this.panOffset,
+    this.selectedNodeId,
+    this.isConnecting = false,
+    this.connectionStart,
+    this.connectionEndPos,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Save canvas state
+    canvas.save();
+    
+    // Apply zoom and pan transform
+    canvas.translate(panOffset.dx, panOffset.dy);
+    canvas.scale(zoom);
+
+    // Draw grid
+    _drawGrid(canvas, size);
+    
+    // Draw connections
+    for (final connection in connections) {
+      _drawConnection(canvas, connection);
+    }
+    
+    // Draw active connection being created
+    if (isConnecting && connectionStart != null && connectionEndPos != null) {
+      _drawActiveConnection(canvas);
+    }
+    
+    // Draw nodes
+    for (final node in nodes) {
+      _drawNode(canvas, node, node['id'] == selectedNodeId);
+    }
+    
+    // Restore canvas state
+    canvas.restore();
+  }
+
+  void _drawGrid(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF4A4A4A)
+      ..strokeWidth = 0.5;
+
+    const gridSize = 50.0;
+    
+    // Calculate visible area
+    final left = (-panOffset.dx / zoom);
+    final top = (-panOffset.dy / zoom);
+    final right = left + (size.width / zoom);
+    final bottom = top + (size.height / zoom);
+    
+    // Draw vertical lines
+    for (double x = (left / gridSize).floor() * gridSize; x <= right; x += gridSize) {
+      canvas.drawLine(
+        Offset(x, top),
+        Offset(x, bottom),
+        paint,
+      );
+    }
+    
+    // Draw horizontal lines
+    for (double y = (top / gridSize).floor() * gridSize; y <= bottom; y += gridSize) {
+      canvas.drawLine(
+        Offset(left, y),
+        Offset(right, y),
+        paint,
+      );
+    }
+  }
+
+  void _drawNode(Canvas canvas, Map<String, dynamic> node, bool isSelected) {
+    final x = node['x'] ?? 0.0;
+    final y = node['y'] ?? 0.0;
+    const width = 150.0;
+    const height = 80.0;
+    
+    final rect = Rect.fromLTWH(x, y, width, height);
+    
+    // Node background
+    final bgPaint = Paint()
+      ..color = isSelected 
+        ? const Color(0xFF5A5A5A) 
+        : const Color(0xFF3A3A3A);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+      bgPaint,
+    );
+    
+    // Node border
+    final borderPaint = Paint()
+      ..color = isSelected 
+        ? Colors.orange 
+        : Color(node['color'] ?? Colors.blue.value)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = isSelected ? 2.0 : 1.0;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+      borderPaint,
+    );
+    
+    // Node header
+    final headerRect = Rect.fromLTWH(x, y, width, 24);
+    final headerPaint = Paint()
+      ..color = Color(node['color'] ?? Colors.blue.value).withOpacity(0.8);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(headerRect, const Radius.circular(6)),
+      headerPaint,
+    );
+    
+    // Node title
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: node['name'] ?? 'Node',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(x + 8, y + 6));
+    
+    // Input/Output sockets
+    _drawSockets(canvas, node, x, y, width, height);
+  }
+
+  void _drawSockets(Canvas canvas, Map<String, dynamic> node, 
+                   double x, double y, double width, double height) {
+    final inputs = node['inputs'] as List<dynamic>? ?? [];
+    final outputs = node['outputs'] as List<dynamic>? ?? [];
+    
+    const socketRadius = 4.0;
+    
+    // Draw input sockets (left side)
+    for (int i = 0; i < inputs.length; i++) {
+      final socketY = y + 30 + (i * 16);
+      final socketCenter = Offset(x - socketRadius, socketY);
+      
+      final socketPaint = Paint()
+        ..color = _getSocketColor(inputs[i]['type']);
+      canvas.drawCircle(socketCenter, socketRadius, socketPaint);
+      
+      // Socket label
+      final labelPainter = TextPainter(
+        text: TextSpan(
+          text: inputs[i]['name'],
+          style: const TextStyle(color: Colors.white70, fontSize: 10),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      labelPainter.layout();
+      labelPainter.paint(canvas, Offset(x + 8, socketY - 6));
+    }
+    
+    // Draw output sockets (right side)
+    for (int i = 0; i < outputs.length; i++) {
+      final socketY = y + 30 + (i * 16);
+      final socketCenter = Offset(x + width + socketRadius, socketY);
+      
+      final socketPaint = Paint()
+        ..color = _getSocketColor(outputs[i]['type']);
+      canvas.drawCircle(socketCenter, socketRadius, socketPaint);
+      
+      // Socket label
+      final labelPainter = TextPainter(
+        text: TextSpan(
+          text: outputs[i]['name'],
+          style: const TextStyle(color: Colors.white70, fontSize: 10),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      labelPainter.layout();
+      final labelWidth = labelPainter.width;
+      labelPainter.paint(canvas, Offset(x + width - 8 - labelWidth, socketY - 6));
+    }
+  }
+
+  Color _getSocketColor(String type) {
+    switch (type) {
+      case 'float': return Colors.blue;
+      case 'int': return Colors.green;
+      case 'bool': return Colors.red;
+      case 'string': return Colors.yellow;
+      case 'exec': return Colors.white;
+      default: return Colors.grey;
+    }
+  }
+
+  void _drawConnection(Canvas canvas, Map<String, dynamic> connection) {
+    // Find socket positions
+    final fromPos = _getSocketPosition(connection['fromNode'], 'output', connection['fromIndex']);
+    final toPos = _getSocketPosition(connection['toNode'], 'input', connection['toIndex']);
+    
+    if (fromPos == null || toPos == null) return;
+    
+    // Draw bezier curve
+    final paint = Paint()
+      ..color = _getSocketColor(connection['dataType'] ?? 'exec')
+      ..strokeWidth = 3.0
+      ..style = PaintingStyle.stroke;
+    
+    _drawBezierConnection(canvas, fromPos, toPos, paint);
+  }
+
+  void _drawActiveConnection(Canvas canvas) {
+    if (connectionStart == null || connectionEndPos == null) return;
+    
+    final startPos = connectionStart!['position'] as Offset;
+    final endPos = (connectionEndPos! - panOffset) / zoom;
+    
+    final paint = Paint()
+      ..color = Colors.orange.withOpacity(0.8)
+      ..strokeWidth = 3.0
+      ..style = PaintingStyle.stroke;
+    
+    _drawBezierConnection(canvas, startPos, endPos, paint);
+  }
+
+  void _drawBezierConnection(Canvas canvas, Offset start, Offset end, Paint paint) {
+    // Calculate control points for bezier curve
+    final dx = (end.dx - start.dx).abs();
+    final controlOffset = dx * 0.5 + 50;
+    
+    final path = Path();
+    path.moveTo(start.dx, start.dy);
+    path.cubicTo(
+      start.dx + controlOffset, start.dy,  // Control point 1
+      end.dx - controlOffset, end.dy,      // Control point 2
+      end.dx, end.dy,                      // End point
+    );
+    
+    canvas.drawPath(path, paint);
+  }
+
+  Offset? _getSocketPosition(String nodeId, String socketType, int index) {
+    final node = nodes.firstWhere(
+      (n) => n['id'] == nodeId,
+      orElse: () => <String, dynamic>{},
+    );
+    
+    if (node.isEmpty) return null;
+    
+    final nodeX = node['x'] ?? 0.0;
+    final nodeY = node['y'] ?? 0.0;
+    const nodeWidth = 150.0;
+    
+    final socketY = nodeY + 30 + (index * 16);
+    
+    if (socketType == 'output') {
+      return Offset(nodeX + nodeWidth + 4, socketY);
+    } else {
+      return Offset(nodeX - 4, socketY);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
