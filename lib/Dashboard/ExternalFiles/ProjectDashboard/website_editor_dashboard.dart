@@ -260,6 +260,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
   int? _selectedNodeIndex;
   bool _showNodesPage = false;
   Map<String, dynamic>? _currentEditingInteraction;
+  Map<String, dynamic>? _currentEditingComponent;
 
   // 1. Add state for selected frame and per-animation keyframes
   int _selectedFrame = 0;
@@ -379,6 +380,15 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       barrierDismissible: false,
       builder: (context) => _buildNodesSystemDialog(component),
     );
+  }
+
+  // Open nodes system for a specific node action
+  void _openNodesSystemForAction(Map<String, dynamic> component, Map<String, dynamic> interaction) {
+    setState(() {
+      _showNodesPage = true;
+      _currentEditingInteraction = interaction;
+      _currentEditingComponent = component;
+    });
   }
 
   // Open nodes editor for a specific interaction
@@ -653,6 +663,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                     setState(() {
                       _showNodesPage = false;
                       _currentEditingInteraction = null;
+                      _currentEditingComponent = null;
                     });
                   },
                 ),
@@ -761,7 +772,9 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                 Icon(Icons.account_tree, color: Colors.green, size: 24),
                 SizedBox(width: 12),
                 Text(
-                  'Node Editor - ${interaction['nodeName'] ?? 'Unnamed Node'}',
+                  interaction['type'] == 'nodes_action' 
+                    ? 'Node Editor - ${_currentEditingComponent?['name'] ?? 'Component'} - ${interaction['name']}'
+                    : 'Node Editor - ${interaction['nodeName'] ?? 'Unnamed Node'}',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -775,6 +788,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                   onPressed: () {
                     setState(() {
                       _currentEditingInteraction = null;
+                      _currentEditingComponent = null;
                     });
                   },
                 ),
@@ -785,6 +799,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                     setState(() {
                       _showNodesPage = false;
                       _currentEditingInteraction = null;
+                      _currentEditingComponent = null;
                     });
                   },
                 ),
@@ -909,7 +924,9 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    'Drag nodes from the library to create logic\nfor "${interaction['nodeName'] ?? 'this interaction'}"',
+                                    interaction['type'] == 'nodes_action'
+                                      ? 'Drag nodes from the library to create logic\nfor "${interaction['name']}" node action'
+                                      : 'Drag nodes from the library to create logic\nfor "${interaction['nodeName'] ?? 'this interaction'}"',
                                     style: TextStyle(
                                       color: Colors.white24,
                                       fontSize: 14,
@@ -970,11 +987,14 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                     setState(() {
                       _showNodesPage = false;
                       _currentEditingInteraction = null;
+                      _currentEditingComponent = null;
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                            'Node setup saved for "${interaction['nodeName']}"'),
+                            interaction['type'] == 'nodes_action'
+                              ? 'Node setup saved for "${interaction['name']}"'
+                              : 'Node setup saved for "${interaction['nodeName']}"'),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -1795,8 +1815,13 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                                                             true;
                                                         _isScreenSelected =
                                                             true;
-                                                        _selectedRightTab =
-                                                            'Animation';
+                                                        // If component has node actions, switch to Interactions tab
+                                                        if (component['nodeActions'] != null &&
+                                                            component['nodeActions'].length > 0) {
+                                                          _selectedRightTab = 'Interactions';
+                                                        } else {
+                                                          _selectedRightTab = 'Animation';
+                                                        }
                                                       });
                                                     },
                                                   ),
@@ -2750,9 +2775,25 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
     );
 
     // Show component-specific interactions if a component is selected
-    final interactionsToShow = selectedComponent.isNotEmpty
+    List<dynamic> interactionsToShow = selectedComponent.isNotEmpty
         ? (selectedComponent['interactions'] as List<dynamic>?) ?? []
         : _interactions;
+    
+    // If a component is selected and has node actions, add them to the interactions list
+    if (selectedComponent.isNotEmpty && selectedComponent['nodeActions'] != null) {
+      final nodeActions = selectedComponent['nodeActions'] as List<dynamic>;
+      for (var nodeAction in nodeActions) {
+        // Convert node action to interaction format
+        interactionsToShow.add({
+          'type': 'nodes_action',
+          'name': nodeAction['name'] ?? 'Node Action',
+          'status': 'Active',
+          'selected': false,
+          'actions': [],
+          'nodeActionData': nodeAction, // Store original node action data
+        });
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2917,10 +2958,16 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
           onTap: () {
             // Check if this is a nodes action - if so, open nodes editor directly
             if (interaction['type'] == 'nodes_action') {
-              setState(() {
-                _showNodesPage = true;
-                _currentEditingInteraction = interaction;
-              });
+              // Get the currently selected component
+              final selectedComponent = _screenComponents.firstWhere(
+                (comp) => comp['selected'] == true,
+                orElse: () => <String, dynamic>{},
+              );
+              
+              // Open nodes system for the component with the specific node action
+              if (selectedComponent.isNotEmpty) {
+                _openNodesSystemForAction(selectedComponent, interaction);
+              }
               return;
             }
 
@@ -2956,14 +3003,29 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                   size: 18,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  interaction['name'],
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        interaction['name'],
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                      if (interaction['type'] == 'nodes_action')
+                        Text(
+                          'Node Action',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                const Spacer(),
                 Text(
                   interaction['status'],
                   style: TextStyle(
