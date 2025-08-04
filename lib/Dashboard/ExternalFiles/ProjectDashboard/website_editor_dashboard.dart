@@ -2900,6 +2900,8 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
           return Icons.data_usage_outlined;
         case 'on_click':
           return Icons.touch_app_outlined;
+        case 'node':
+          return Icons.account_tree_outlined;
         default:
           return Icons.touch_app_outlined;
       }
@@ -2916,7 +2918,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
         child: InkWell(
           onTap: () {
             // Check if this is a nodes action - if so, open nodes editor directly
-            if (interaction['type'] == 'nodes_action') {
+            if (interaction['type'] == 'node') {
               setState(() {
                 _showNodesPage = true;
                 _currentEditingInteraction = interaction;
@@ -2950,7 +2952,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
               children: [
                 Icon(
                   getIconForType(interaction['type']),
-                  color: interaction['type'] == 'nodes_action'
+                  color: interaction['type'] == 'node'
                       ? Colors.green
                       : Colors.white70,
                   size: 18,
@@ -2973,13 +2975,13 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                 ),
                 const SizedBox(width: 8),
                 // Show node editor indicator for nodes actions
-                if (interaction['type'] == 'nodes_action')
+                if (interaction['type'] == 'node')
                   Icon(
                     Icons.open_in_new,
                     color: Colors.green,
                     size: 14,
                   ),
-                if (interaction['type'] == 'nodes_action')
+                if (interaction['type'] == 'node')
                   const SizedBox(width: 8),
                 if (interaction['selected'])
                   Container(
@@ -3036,6 +3038,8 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
         return 'On animation end';
       case 'nodes_action':
         return 'Nodes Action';
+      case 'node':
+        return 'Node Action';
       default:
         return 'Unknown interaction';
     }
@@ -3072,7 +3076,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
         return Icons.play_arrow;
       case 'on_animation_end':
         return Icons.stop;
-      case 'nodes_action':
+      case 'node':
         return Icons.account_tree;
       default:
         return Icons.touch_app_outlined;
@@ -3277,8 +3281,8 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
               Icons.stop,
             ),
             _buildInteractionTypeMenuItem(
-              'nodes_action',
-              'Nodes Action',
+              'node',
+              'Node Action',
               Icons.account_tree,
             ),
           ],
@@ -3379,8 +3383,8 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
           ),
         ],
 
-        // Show nodes action setup for nodes_action type
-        if (interaction['type'] == 'nodes_action') ...[
+        // Show nodes action setup for node type
+        if (interaction['type'] == 'node') ...[
           const SizedBox(height: 20),
 
           // Node Name field
