@@ -10615,6 +10615,109 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
     _saveNodeData();
   }
 
+  Widget _buildNodeOverlays() {
+    return Stack(
+      children: _nodes.where((node) => node['type'] == 'run_animation').map((node) {
+        return _buildAnimationNodeOverlay(node);
+      }).toList(),
+    );
+  }
+
+  Widget _buildAnimationNodeOverlay(Map<String, dynamic> node) {
+    final x = (node['x'] ?? 0.0) * _zoom + _panOffset.dx;
+    final y = (node['y'] ?? 0.0) * _zoom + _panOffset.dy;
+    
+    return Positioned(
+      left: x + 8 * _zoom,
+      top: y + 50 * _zoom,
+      child: Container(
+        width: 134 * _zoom,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Delay input
+            Container(
+              height: 16 * _zoom,
+              margin: EdgeInsets.only(bottom: 4 * _zoom),
+              child: TextField(
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10 * _zoom,
+                ),
+                decoration: InputDecoration(
+                  hintText: '0.0',
+                  hintStyle: TextStyle(color: Colors.white38, fontSize: 10 * _zoom),
+                  filled: true,
+                  fillColor: const Color(0xFF1A1A1A),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(3),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                ),
+                onChanged: (value) {
+                  node['delayValue'] = double.tryParse(value) ?? 0.0;
+                },
+              ),
+            ),
+            // Animation dropdown
+            Container(
+              height: 16 * _zoom,
+              child: DropdownButtonFormField<String>(
+                value: node['selectedAnimation'],
+                style: TextStyle(color: Colors.white, fontSize: 10 * _zoom),
+                dropdownColor: const Color(0xFF2D2D2D),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFF1A1A1A),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(3),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                ),
+                hint: Text('Select Animation', style: TextStyle(fontSize: 10 * _zoom)),
+                items: _getAvailableAnimations().map((animation) {
+                  return DropdownMenuItem<String>(
+                    value: animation['id'],
+                    child: Text(
+                      animation['name'] ?? '',
+                      style: TextStyle(fontSize: 10 * _zoom),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    node['selectedAnimation'] = value;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Map<String, String>> _getAvailableAnimations() {
+    // TODO: This should fetch actual animations from the animation page
+    // For now, return some sample animations
+    return [
+      {'id': 'fade_in', 'name': 'Fade In'},
+      {'id': 'fade_out', 'name': 'Fade Out'},
+      {'id': 'slide_left', 'name': 'Slide Left'},
+      {'id': 'slide_right', 'name': 'Slide Right'},
+      {'id': 'slide_up', 'name': 'Slide Up'},
+      {'id': 'slide_down', 'name': 'Slide Down'},
+      {'id': 'scale_in', 'name': 'Scale In'},
+      {'id': 'scale_out', 'name': 'Scale Out'},
+      {'id': 'rotate_left', 'name': 'Rotate Left'},
+      {'id': 'rotate_right', 'name': 'Rotate Right'},
+      {'id': 'bounce', 'name': 'Bounce'},
+      {'id': 'shake', 'name': 'Shake'},
+    ];
+  }
+
   void _addNode(Map<String, dynamic> nodeTemplate) {
     final newNode = {
       'id': 'node_${DateTime.now().millisecondsSinceEpoch}',
@@ -10753,140 +10856,6 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     this.connectionStart,
     this.connectionEndPos,
   });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Save canvas state
-    canvas.save();
-    
-    // Apply zoom and pan transform
-    canvas.translate(panOffset.dx, panOffset.dy);
-    canvas.scale(zoom);
-
-    // Draw grid
-    _drawGrid(canvas, size);
-    
-    // Draw connections
-    for (final connection in connections) {
-      _drawConnection(canvas, connection);
-    }
-    
-    // Draw active connection being created
-    if (isConnecting && connectionStart != null && connectionEndPos != null) {
-      _drawActiveConnection(canvas);
-    }
-    
-    // Draw nodes
-    for (final node in nodes) {
-      _drawNode(canvas, node, node['id'] == selectedNodeId);
-    }
-    
-    // Restore canvas state
-    canvas.restore();
-  }
-
-  Widget _buildNodeOverlays() {
-    return Stack(
-      children: _nodes.where((node) => node['type'] == 'run_animation').map((node) {
-        return _buildAnimationNodeOverlay(node);
-      }).toList(),
-    );
-  }
-
-  Widget _buildAnimationNodeOverlay(Map<String, dynamic> node) {
-    final x = (node['x'] ?? 0.0) * _zoom + _panOffset.dx;
-    final y = (node['y'] ?? 0.0) * _zoom + _panOffset.dy;
-    
-    return Positioned(
-      left: x + 8 * _zoom,
-      top: y + 50 * _zoom,
-      child: Container(
-        width: 134 * _zoom,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Delay input
-            Container(
-              height: 16 * _zoom,
-              margin: EdgeInsets.only(bottom: 4 * _zoom),
-              child: TextField(
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10 * _zoom,
-                ),
-                decoration: InputDecoration(
-                  hintText: '0.0',
-                  hintStyle: TextStyle(color: Colors.white38, fontSize: 10 * _zoom),
-                  filled: true,
-                  fillColor: const Color(0xFF1A1A1A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(3),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                ),
-                onChanged: (value) {
-                  node['delayValue'] = double.tryParse(value) ?? 0.0;
-                },
-              ),
-            ),
-            // Animation dropdown
-            Container(
-              height: 16 * _zoom,
-              child: DropdownButtonFormField<String>(
-                value: node['selectedAnimation'],
-                style: TextStyle(color: Colors.white, fontSize: 10 * _zoom),
-                dropdownColor: const Color(0xFF2D2D2D),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF1A1A1A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(3),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                ),
-                hint: Text('Select Animation', style: TextStyle(fontSize: 10 * _zoom)),
-                items: _getAvailableAnimations().map((animation) {
-                  return DropdownMenuItem<String>(
-                    value: animation['id'],
-                    child: Text(
-                      animation['name'],
-                      style: TextStyle(fontSize: 10 * _zoom),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    node['selectedAnimation'] = value;
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<Map<String, String>> _getAvailableAnimations() {
-    // TODO: This should fetch actual animations from the animation page
-    // For now, return some sample animations
-    return [
-      {'id': 'fade_in', 'name': 'Fade In'},
-      {'id': 'fade_out', 'name': 'Fade Out'},
-      {'id': 'slide_left', 'name': 'Slide Left'},
-      {'id': 'slide_right', 'name': 'Slide Right'},
-      {'id': 'slide_up', 'name': 'Slide Up'},
-      {'id': 'slide_down', 'name': 'Slide Down'},
-      {'id': 'scale_in', 'name': 'Scale In'},
-      {'id': 'scale_out', 'name': 'Scale Out'},
-      {'id': 'rotate_left', 'name': 'Rotate Left'},
-      {'id': 'rotate_right', 'name': 'Rotate Right'},
-      {'id': 'bounce', 'name': 'Bounce'},
-      {'id': 'shake', 'name': 'Shake'},
-    ];
-  }
 
   @override
   void paint(Canvas canvas, Size size) {
