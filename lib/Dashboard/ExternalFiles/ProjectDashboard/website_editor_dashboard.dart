@@ -10072,7 +10072,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           onPanStart: _onPanStart,
           onPanUpdate: _onPanUpdate,
           onPanEnd: _onPanEnd,
-          onTap: _onCanvasTap,
+          onTapUp: _onCanvasTap,
           child: CustomPaint(
             painter: BlenderNodeCanvasPainter(
               nodes: _nodes,
