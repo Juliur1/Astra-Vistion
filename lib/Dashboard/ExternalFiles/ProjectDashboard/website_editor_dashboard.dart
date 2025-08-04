@@ -747,6 +747,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
   Widget _buildInteractionNodeEditor(Map<String, dynamic> interaction) {
     return BlenderNodesEditor(
       interaction: interaction,
+      animations: _animations,
       onClose: () {
         setState(() {
           _showNodesPage = false;
@@ -9841,6 +9842,7 @@ class BlenderNodesEditor extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onBack;
   final VoidCallback onSave;
+  final List<Map<String, dynamic>> animations;
 
   const BlenderNodesEditor({
     Key? key,
@@ -9848,6 +9850,7 @@ class BlenderNodesEditor extends StatefulWidget {
     required this.onClose,
     required this.onBack,
     required this.onSave,
+    required this.animations,
   }) : super(key: key);
 
   @override
@@ -10719,8 +10722,8 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
     // Get animations from the animation page data
     List<Map<String, String>> availableAnimations = [];
     
-    for (int i = 0; i < _animations.length; i++) {
-      final animation = _animations[i];
+    for (int i = 0; i < widget.animations.length; i++) {
+      final animation = widget.animations[i];
       availableAnimations.add({
         'id': animation['id']?.toString() ?? 'anim_$i',
         'name': animation['name']?.toString() ?? 'Animation $i',
