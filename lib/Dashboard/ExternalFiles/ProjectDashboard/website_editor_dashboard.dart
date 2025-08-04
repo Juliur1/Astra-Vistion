@@ -10513,7 +10513,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
       // Calculate height based on node type
       double nodeHeight = 80.0;
       if (node['type'] == 'run_animation') {
-        nodeHeight = 120.0;
+        nodeHeight = 150.0;
       }
       
       if (worldPos.dx >= nodeX && worldPos.dx <= nodeX + nodeWidth &&
@@ -10536,7 +10536,22 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
       // Check input sockets
       final inputs = node['inputs'] as List<dynamic>? ?? [];
       for (int i = 0; i < inputs.length; i++) {
-        final socketY = nodeY + 30 + (i * 16);
+        double socketY;
+        if (node['type'] == 'run_animation') {
+          // Special positioning for Run Animation node to align with input fields
+          if (i == 0) {
+            socketY = nodeY + 35; // Execute socket
+          } else if (i == 1) {
+            socketY = nodeY + 70; // Delay socket (align with text input)
+          } else if (i == 2) {
+            socketY = nodeY + 98; // Animation socket (align with dropdown)
+          } else {
+            socketY = nodeY + 30 + (i * 16);
+          }
+        } else {
+          socketY = nodeY + 30 + (i * 16);
+        }
+        
         final socketCenter = Offset(nodeX - 4, socketY);
         
         if ((worldPos - socketCenter).distance <= socketRadius) {
@@ -10629,7 +10644,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
     
     return Positioned(
       left: x + 8 * _zoom,
-      top: y + 50 * _zoom,
+      top: y + 60 * _zoom, // Moved down more to fit in larger node
       child: Container(
         width: 134 * _zoom,
         child: Column(
@@ -10637,24 +10652,25 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           children: [
             // Delay input
             Container(
-              height: 16 * _zoom,
-              margin: EdgeInsets.only(bottom: 4 * _zoom),
+              height: 20 * _zoom, // Made taller
+              margin: EdgeInsets.only(bottom: 8 * _zoom), // More spacing
               child: TextField(
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 10 * _zoom,
+                  fontSize: 12 * _zoom, // Larger font
                 ),
                 decoration: InputDecoration(
-                  hintText: '0.0',
+                  hintText: 'Delay (seconds)',
                   hintStyle: TextStyle(color: Colors.white38, fontSize: 10 * _zoom),
                   filled: true,
                   fillColor: const Color(0xFF1A1A1A),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(4),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 ),
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
                 onChanged: (value) {
                   node['delayValue'] = double.tryParse(value) ?? 0.0;
                 },
@@ -10662,27 +10678,27 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
             ),
             // Animation dropdown
             Container(
-              height: 16 * _zoom,
+              height: 24 * _zoom, // Made taller
               child: DropdownButtonFormField<String>(
                 value: node['selectedAnimation'],
-                style: TextStyle(color: Colors.white, fontSize: 10 * _zoom),
+                style: TextStyle(color: Colors.white, fontSize: 12 * _zoom), // Larger font
                 dropdownColor: const Color(0xFF2D2D2D),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color(0xFF1A1A1A),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(4),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 ),
-                hint: Text('Select Animation', style: TextStyle(fontSize: 10 * _zoom)),
+                hint: Text('Select Animation', style: TextStyle(fontSize: 11 * _zoom)),
                 items: _getAvailableAnimations().map((animation) {
                   return DropdownMenuItem<String>(
                     value: animation['id'],
                     child: Text(
                       animation['name'] ?? '',
-                      style: TextStyle(fontSize: 10 * _zoom),
+                      style: TextStyle(fontSize: 11 * _zoom),
                     ),
                   );
                 }).toList(),
@@ -10700,22 +10716,26 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   }
 
   List<Map<String, String>> _getAvailableAnimations() {
-    // TODO: This should fetch actual animations from the animation page
-    // For now, return some sample animations
-    return [
-      {'id': 'fade_in', 'name': 'Fade In'},
-      {'id': 'fade_out', 'name': 'Fade Out'},
-      {'id': 'slide_left', 'name': 'Slide Left'},
-      {'id': 'slide_right', 'name': 'Slide Right'},
-      {'id': 'slide_up', 'name': 'Slide Up'},
-      {'id': 'slide_down', 'name': 'Slide Down'},
-      {'id': 'scale_in', 'name': 'Scale In'},
-      {'id': 'scale_out', 'name': 'Scale Out'},
-      {'id': 'rotate_left', 'name': 'Rotate Left'},
-      {'id': 'rotate_right', 'name': 'Rotate Right'},
-      {'id': 'bounce', 'name': 'Bounce'},
-      {'id': 'shake', 'name': 'Shake'},
-    ];
+    // Get animations from the animation page data
+    List<Map<String, String>> availableAnimations = [];
+    
+    for (int i = 0; i < _animations.length; i++) {
+      final animation = _animations[i];
+      availableAnimations.add({
+        'id': animation['id']?.toString() ?? 'anim_$i',
+        'name': animation['name']?.toString() ?? 'Animation $i',
+      });
+    }
+    
+    // If no animations are created yet, show a default message
+    if (availableAnimations.isEmpty) {
+      availableAnimations.add({
+        'id': 'no_animations',
+        'name': 'No animations created yet',
+      });
+    }
+    
+    return availableAnimations;
   }
 
   void _addNode(Map<String, dynamic> nodeTemplate) {
@@ -10928,7 +10948,7 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     // Calculate height based on node type
     double height = 80.0;
     if (node['type'] == 'run_animation') {
-      height = 120.0; // Extra height for input fields
+      height = 150.0; // Extra height for input fields
     }
     
     final rect = Rect.fromLTWH(x, y, width, height);
@@ -10992,7 +11012,22 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     
     // Draw input sockets (left side)
     for (int i = 0; i < inputs.length; i++) {
-      final socketY = y + 30 + (i * 16);
+      double socketY;
+      if (node['type'] == 'run_animation') {
+        // Special positioning for Run Animation node to align with input fields
+        if (i == 0) {
+          socketY = y + 35; // Execute socket
+        } else if (i == 1) {
+          socketY = y + 70; // Delay socket (align with text input)
+        } else if (i == 2) {
+          socketY = y + 98; // Animation socket (align with dropdown)
+        } else {
+          socketY = y + 30 + (i * 16);
+        }
+      } else {
+        socketY = y + 30 + (i * 16);
+      }
+      
       final socketCenter = Offset(x - socketRadius, socketY);
       
       final socketPaint = Paint()
@@ -11104,7 +11139,21 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     final nodeY = node['y'] ?? 0.0;
     const nodeWidth = 150.0;
     
-    final socketY = nodeY + 30 + (index * 16);
+    double socketY;
+    if (node['type'] == 'run_animation' && socketType == 'input') {
+      // Special positioning for Run Animation node input sockets
+      if (index == 0) {
+        socketY = nodeY + 35; // Execute socket
+      } else if (index == 1) {
+        socketY = nodeY + 70; // Delay socket
+      } else if (index == 2) {
+        socketY = nodeY + 98; // Animation socket
+      } else {
+        socketY = nodeY + 30 + (index * 16);
+      }
+    } else {
+      socketY = nodeY + 30 + (index * 16);
+    }
     
     if (socketType == 'output') {
       return Offset(nodeX + nodeWidth + 4, socketY);
