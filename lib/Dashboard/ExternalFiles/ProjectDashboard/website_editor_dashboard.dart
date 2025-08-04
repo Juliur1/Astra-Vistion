@@ -1343,14 +1343,20 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
   // Helper method to execute component interactions
   void _executeComponentInteraction(
       Map<String, dynamic> component, String interactionType) {
-    if (component['interactions'] == null) return;
+    if (component['interactions'] == null) {
+      print('No interactions found for ${component['type']}');
+      return;
+    }
 
     // Find matching interactions for this type
     final matchingInteractions = (component['interactions'] as List<dynamic>)
         .where((interaction) => interaction['type'] == interactionType)
         .toList();
 
-    if (matchingInteractions.isEmpty) return;
+    if (matchingInteractions.isEmpty) {
+      print('No $interactionType interactions found for ${component['type']}');
+      return;
+    }
 
     print('Executing $interactionType interaction on ${component['type']}');
 
@@ -1365,6 +1371,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
 
     // For each matching interaction, execute its actions
     for (var interaction in matchingInteractions) {
+      print('Executing interaction: ${interaction['name']}');
       _executeInteractionNodes(interaction);
     }
   }
@@ -1372,7 +1379,14 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
   // Execute nodes for an interaction
   void _executeInteractionNodes(Map<String, dynamic> interaction) {
     if (interaction['nodeData'] == null || interaction['nodeData']['nodes'] == null) {
-      print('No node data found for interaction');
+      print('No node data found for interaction: ${interaction['name']}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No nodes configured for ${interaction['name']}. Please add nodes in the Interactions panel.'),
+          duration: Duration(seconds: 3),
+          backgroundColor: Colors.orange,
+        ),
+      );
       return;
     }
 
@@ -1381,12 +1395,36 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
     
     print('Found ${nodes.length} nodes and ${connections.length} connections');
     
+    if (nodes.isEmpty) {
+      print('No nodes found in interaction: ${interaction['name']}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No nodes configured for ${interaction['name']}. Please add nodes in the Interactions panel.'),
+          duration: Duration(seconds: 3),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
     // Find and execute OnClick trigger nodes
     final onClickNodes = nodes.where((node) => 
       node['type'] == 'onclick_trigger' || node['type'] == 'on_click' || node['type'] == 'trigger'
     ).toList();
 
     print('Found ${onClickNodes.length} trigger nodes');
+    
+    if (onClickNodes.isEmpty) {
+      print('No trigger nodes found in interaction: ${interaction['name']}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No trigger nodes found. Please add an OnClick trigger node.'),
+          duration: Duration(seconds: 3),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
     
     for (var triggerNode in onClickNodes) {
       print('Executing trigger node: ${triggerNode['type']} - ${triggerNode['id']}');
@@ -1456,198 +1494,232 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
         children: [
           // Full-screen preview content
           Center(
-            child: Container(
-              width: _screenSettings.width,
-              height: _screenSettings.height,
-              decoration: BoxDecoration(
-                color: _screenSettings.backgroundColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                // Calculate the size while maintaining aspect ratio - same as editing view
+                final aspectRatio = _screenSettings.width / _screenSettings.height;
+                final maxWidth = constraints.maxWidth * 0.8;
+                final maxHeight = constraints.maxHeight * 0.8;
+
+                final double width;
+                final double height;
+
+                if (maxWidth / aspectRatio <= maxHeight) {
+                  width = maxWidth;
+                  height = maxWidth / aspectRatio;
+                } else {
+                  height = maxHeight;
+                  width = maxHeight * aspectRatio;
+                }
+
+                return Container(
+                  width: width,
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: _screenSettings.backgroundColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  // Render all the components in preview mode
-                  ..._screenComponents.map((component) {
-                    // Render based on component type
-                    switch (component['type']) {
-                      case 'Text':
-                        return Positioned(
-                          left: component['position'].dx,
-                          top: component['position'].dy,
-                          child: Transform.rotate(
-                            angle: component['rotation'] ?? 0.0,
-                            child: GestureDetector(
-                              onTap: component['interactions'] != null
-                                  ? () {
-                                      _executeComponentInteraction(component, 'onClick');
-                                    }
-                                  : null,
-                              child: Text(
-                                component['text'] ?? 'Text',
-                                style: TextStyle(
-                                  fontSize: component['fontSize'] ?? 16.0,
-                                  fontWeight: component['isBold']
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  fontStyle: component['isItalic']
-                                      ? FontStyle.italic
-                                      : FontStyle.normal,
-                                  decoration: component['isUnderlined']
-                                      ? TextDecoration.underline
-                                      : TextDecoration.none,
-                                  color: component['color'] ?? Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
+                  child: Stack(
+                    children: [
+                      // Render all the components in preview mode with proper scaling
+                      ..._screenComponents.map((component) {
+                        // Calculate scaling factors to maintain proportions
+                        final scaleX = width / _screenSettings.width;
+                        final scaleY = height / _screenSettings.height;
+                        final scale = min(scaleX, scaleY); // Use uniform scaling
+                        
+                        // Scale the position
+                        final scaledPosition = Offset(
+                          component['position'].dx * scale,
+                          component['position'].dy * scale,
                         );
-                      case 'Button':
-                        return Positioned(
-                          left: component['position'].dx,
-                          top: component['position'].dy,
-                          child: Transform.rotate(
-                            angle: component['rotation'] ?? 0.0,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                _executeComponentInteraction(component, 'onClick');
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    component['color'] ?? Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
-                              ),
-                              child: Text(component['text'] ?? 'Button'),
-                            ),
-                          ),
-                        );
-                      case 'Container':
-                        return Positioned(
-                          left: component['position'].dx,
-                          top: component['position'].dy,
-                          child: Transform.rotate(
-                            angle: component['rotation'] ?? 0.0,
-                            child: GestureDetector(
-                              onTap: component['interactions'] != null
-                                  ? () {
-                                      _executeComponentInteraction(component, 'onClick');
-                                    }
-                                  : null,
-                              child: Container(
-                                width: component['width'] ?? 100,
-                                height: component['height'] ?? 50,
-                                decoration: BoxDecoration(
-                                  color: component['color'] ?? Colors.grey,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(
-                                        component['borderRadiusTopLeft'] ??
-                                            4.0),
-                                    topRight: Radius.circular(
-                                        component['borderRadiusTopRight'] ??
-                                            4.0),
-                                    bottomLeft: Radius.circular(
-                                        component['borderRadiusBottomLeft'] ??
-                                            4.0),
-                                    bottomRight: Radius.circular(
-                                        component['borderRadiusBottomRight'] ??
-                                            4.0),
-                                  ),
-                                  boxShadow: component['hasShadow'] == true
-                                      ? [
-                                          BoxShadow(
-                                            color: component['shadowColor'] ??
-                                                Colors.black.withOpacity(0.3),
-                                            blurRadius:
-                                                component['shadowBlur'] ?? 10.0,
-                                            spreadRadius: component[
-                                                    'shadowSpreadRadius'] ??
-                                                0.0,
-                                            offset: Offset(
-                                              component['shadowOffsetX'] ?? 0.0,
-                                              component['shadowOffsetY'] ?? 4.0,
-                                            ),
-                                          ),
-                                        ]
+                        
+                        // Render based on component type
+                        switch (component['type']) {
+                          case 'Text':
+                            return Positioned(
+                              left: scaledPosition.dx,
+                              top: scaledPosition.dy,
+                              child: Transform.rotate(
+                                angle: component['rotation'] ?? 0.0,
+                                child: GestureDetector(
+                                  onTap: component['interactions'] != null
+                                      ? () {
+                                          _executeComponentInteraction(component, 'on_click');
+                                        }
                                       : null,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      case 'Image':
-                        return Positioned(
-                          left: component['position'].dx,
-                          top: component['position'].dy,
-                          child: Transform.rotate(
-                            angle: component['rotation'] ?? 0.0,
-                            child: GestureDetector(
-                              onTap: component['interactions'] != null
-                                  ? () {
-                                      _executeComponentInteraction(component, 'onClick');
-                                    }
-                                  : null,
-                              child: Container(
-                                width: component['width'] ?? 100,
-                                height: component['height'] ?? 100,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: component['imageData'] != null
-                                        ? MemoryImage(component['imageData'])
-                                        : const AssetImage(
-                                                'assets/placeholder_image.png')
-                                            as ImageProvider,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      case 'Burger Menu':
-                        return Positioned(
-                          left: component['position'].dx,
-                          top: component['position'].dy,
-                          child: Transform.rotate(
-                            angle: component['rotation'] ?? 0.0,
-                            child: GestureDetector(
-                              onTap: () {
-                                _executeComponentInteraction(component, 'onClick');
-                              },
-                              child: Column(
-                                children: List.generate(
-                                  3,
-                                  (index) => Container(
-                                    width: 30,
-                                    height: component['lineThickness'] ?? 3.0,
-                                    margin: EdgeInsets.only(
-                                      bottom: index < 2
-                                          ? component['lineSpacing'] ?? 5.0
-                                          : 0,
+                                  child: Text(
+                                    component['text'] ?? 'Text',
+                                    style: TextStyle(
+                                      fontSize: (component['fontSize'] ?? 16.0) * scale,
+                                      fontWeight: component['isBold']
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      fontStyle: component['isItalic']
+                                          ? FontStyle.italic
+                                          : FontStyle.normal,
+                                      decoration: component['isUnderlined']
+                                          ? TextDecoration.underline
+                                          : TextDecoration.none,
+                                      color: component['color'] ?? Colors.black,
                                     ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          case 'Button':
+                            return Positioned(
+                              left: scaledPosition.dx,
+                              top: scaledPosition.dy,
+                              child: Transform.rotate(
+                                angle: component['rotation'] ?? 0.0,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _executeComponentInteraction(component, 'on_click');
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        component['color'] ?? Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16 * scale, vertical: 8 * scale),
+                                  ),
+                                  child: Text(
+                                    component['text'] ?? 'Button',
+                                    style: TextStyle(fontSize: 14 * scale),
+                                  ),
+                                ),
+                              ),
+                            );
+                          case 'Container':
+                            return Positioned(
+                              left: scaledPosition.dx,
+                              top: scaledPosition.dy,
+                              child: Transform.rotate(
+                                angle: component['rotation'] ?? 0.0,
+                                child: GestureDetector(
+                                  onTap: component['interactions'] != null
+                                      ? () {
+                                          _executeComponentInteraction(component, 'on_click');
+                                        }
+                                      : null,
+                                  child: Container(
+                                    width: (component['width'] ?? 100) * scale,
+                                    height: (component['height'] ?? 50) * scale,
                                     decoration: BoxDecoration(
-                                      color: component['menuColor'] ??
-                                          Colors.black87,
-                                      borderRadius: BorderRadius.circular(1.5),
+                                      color: component['color'] ?? Colors.grey,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(
+                                            component['borderRadiusTopLeft'] ??
+                                                4.0),
+                                        topRight: Radius.circular(
+                                            component['borderRadiusTopRight'] ??
+                                                4.0),
+                                        bottomLeft: Radius.circular(
+                                            component['borderRadiusBottomLeft'] ??
+                                                4.0),
+                                        bottomRight: Radius.circular(
+                                            component['borderRadiusBottomRight'] ??
+                                                4.0),
+                                      ),
+                                      boxShadow: component['hasShadow'] == true
+                                          ? [
+                                              BoxShadow(
+                                                color: component['shadowColor'] ??
+                                                  Colors.black.withOpacity(0.3),
+                                                blurRadius:
+                                                    component['shadowBlur'] ?? 10.0,
+                                                spreadRadius: component[
+                                                        'shadowSpreadRadius'] ??
+                                                    0.0,
+                                                offset: Offset(
+                                                  component['shadowOffsetX'] ?? 0.0,
+                                                  component['shadowOffsetY'] ?? 4.0,
+                                                ),
+                                              ),
+                                            ]
+                                          : null,
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  }).toList(),
-                ],
-              ),
+                            );
+                          case 'Image':
+                            return Positioned(
+                              left: scaledPosition.dx,
+                              top: scaledPosition.dy,
+                              child: Transform.rotate(
+                                angle: component['rotation'] ?? 0.0,
+                                child: GestureDetector(
+                                  onTap: component['interactions'] != null
+                                      ? () {
+                                          _executeComponentInteraction(component, 'on_click');
+                                        }
+                                      : null,
+                                  child: Container(
+                                    width: (component['width'] ?? 100) * scale,
+                                    height: (component['height'] ?? 100) * scale,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: component['imageData'] != null
+                                            ? MemoryImage(component['imageData'])
+                                            : const AssetImage(
+                                                    'assets/placeholder_image.png')
+                                                as ImageProvider,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          case 'Burger Menu':
+                            return Positioned(
+                              left: scaledPosition.dx,
+                              top: scaledPosition.dy,
+                              child: Transform.rotate(
+                                angle: component['rotation'] ?? 0.0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _executeComponentInteraction(component, 'on_click');
+                                  },
+                                  child: Column(
+                                    children: List.generate(
+                                      3,
+                                      (index) => Container(
+                                        width: 30 * scale,
+                                        height: (component['lineThickness'] ?? 3.0) * scale,
+                                        margin: EdgeInsets.only(
+                                          bottom: index < 2
+                                              ? (component['lineSpacing'] ?? 5.0) * scale
+                                              : 0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: component['menuColor'] ??
+                                              Colors.black87,
+                                          borderRadius: BorderRadius.circular(1.5 * scale),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          default:
+                            return const SizedBox.shrink();
+                        }
+                      }).toList(),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
           // Exit preview button
@@ -1727,12 +1799,13 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       
       // You could add actual animation playback logic here
       // For example, interpolating between keyframes over time
+      print('Animation execution completed for: $animationName');
     } else {
       print('Animation not found: $animationName');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Animation "$animationName" not found!'),
-          duration: Duration(seconds: 2),
+          content: Text('Animation "$animationName" not found! Please create the animation first.'),
+          duration: Duration(seconds: 3),
           backgroundColor: Colors.red,
         ),
       );
@@ -8271,7 +8344,12 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                         'target': '',
                         'enabled': true
                       }
-                    ]
+                    ],
+                    'nodeData': {
+                      'nodes': [],
+                      'connections': [],
+                      'created': DateTime.now().toIso8601String(),
+                    }
                   }
                 ];
               }
