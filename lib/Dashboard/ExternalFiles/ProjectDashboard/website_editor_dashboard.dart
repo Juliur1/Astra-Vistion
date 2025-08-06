@@ -10722,8 +10722,8 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   }
 
   List<Widget> _buildSampleWebsiteComponents() {
-    // Create sample components for the preview
-    final components = [
+    // Create sample components for the preview with proper types
+    final components = <Map<String, dynamic>>[
       {
         'type': 'Text',
         'text': 'Welcome to our website',
@@ -10775,7 +10775,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
       },
     ];
 
-    return components.map((component) {
+    return components.map<Widget>((component) {
       final type = component['type'] as String;
       final position = component['position'] as Offset;
       
@@ -10785,13 +10785,13 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
             left: position.dx,
             top: position.dy,
             child: Text(
-              component['text'] ?? 'Text',
+              (component['text'] as String?) ?? 'Text',
               style: TextStyle(
-                fontSize: component['fontSize'] ?? 16.0,
-                fontWeight: component['isBold'] == true
+                fontSize: (component['fontSize'] as double?) ?? 16.0,
+                fontWeight: (component['isBold'] as bool?) == true
                     ? FontWeight.bold
                     : FontWeight.normal,
-                color: component['color'] ?? Colors.black,
+                color: (component['color'] as Color?) ?? Colors.black,
               ),
             ),
           );
@@ -10810,12 +10810,12 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: component['color'] ?? Colors.blue,
+                backgroundColor: (component['color'] as Color?) ?? Colors.blue,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
               child: Text(
-                component['text'] ?? 'Button',
+                (component['text'] as String?) ?? 'Button',
                 style: const TextStyle(fontSize: 14),
               ),
             ),
@@ -10825,10 +10825,10 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
             left: position.dx,
             top: position.dy,
             child: Container(
-              width: component['width'] ?? 100.0,
-              height: component['height'] ?? 50.0,
+              width: (component['width'] as double?) ?? 100.0,
+              height: (component['height'] as double?) ?? 50.0,
               decoration: BoxDecoration(
-                color: component['color'] ?? Colors.grey,
+                color: (component['color'] as Color?) ?? Colors.grey,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
