@@ -10586,10 +10586,10 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.preview, color: Colors.orange, size: 20),
+                const Icon(Icons.web, color: Colors.orange, size: 20),
                 const SizedBox(width: 8),
                 const Text(
-                  'Preview',
+                  'Website Preview',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -10644,7 +10644,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Node Execution',
+                          'Website Components',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -10676,13 +10676,167 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           size: Size.infinite,
         ),
         
-        // Preview elements based on selected node
-        if (_selectedNodeId != null) _buildSelectedNodePreview(),
-        
-        // Default preview content
-        if (_selectedNodeId == null) _buildDefaultPreview(),
+        // Website Preview
+        _buildWebsitePreview(),
       ],
     );
+  }
+
+  Widget _buildWebsitePreview() {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF5A5A5A)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          children: [
+            // Website background
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.white,
+            ),
+            
+            // Render all website components
+            ..._buildWebsiteComponents(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildWebsiteComponents() {
+    // Create sample components for the preview
+    return _buildSampleWebsiteComponents();
+  }
+
+  List<Widget> _buildSampleWebsiteComponents() {
+    // Create sample components for the preview
+    final components = [
+      {
+        'type': 'Text',
+        'text': 'Welcome to our website',
+        'position': const Offset(20, 20),
+        'fontSize': 20.0,
+        'color': Colors.black,
+        'isBold': true,
+      },
+      {
+        'type': 'Text',
+        'text': 'This is a sample website preview showing how your components will look.',
+        'position': const Offset(20, 50),
+        'fontSize': 12.0,
+        'color': Colors.black54,
+      },
+      {
+        'type': 'Button',
+        'text': 'Get Started',
+        'position': const Offset(20, 80),
+        'color': Colors.blue,
+      },
+      {
+        'type': 'Container',
+        'position': const Offset(20, 120),
+        'width': 150.0,
+        'height': 80.0,
+        'color': Colors.grey.shade200,
+      },
+      {
+        'type': 'Text',
+        'text': 'Feature Box',
+        'position': const Offset(30, 130),
+        'fontSize': 14.0,
+        'color': Colors.black87,
+        'isBold': true,
+      },
+      {
+        'type': 'Button',
+        'text': 'Learn More',
+        'position': const Offset(20, 210),
+        'color': Colors.green,
+      },
+      {
+        'type': 'Text',
+        'text': 'Footer text',
+        'position': const Offset(20, 250),
+        'fontSize': 10.0,
+        'color': Colors.grey,
+      },
+    ];
+
+    return components.map((component) {
+      final type = component['type'] as String;
+      final position = component['position'] as Offset;
+      
+      switch (type) {
+        case 'Text':
+          return Positioned(
+            left: position.dx,
+            top: position.dy,
+            child: Text(
+              component['text'] ?? 'Text',
+              style: TextStyle(
+                fontSize: component['fontSize'] ?? 16.0,
+                fontWeight: component['isBold'] == true
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+                color: component['color'] ?? Colors.black,
+              ),
+            ),
+          );
+        case 'Button':
+          return Positioned(
+            left: position.dx,
+            top: position.dy,
+            child: ElevatedButton(
+              onPressed: () {
+                // Handle button click in preview
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Button clicked in preview'),
+                    backgroundColor: Colors.blue,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: component['color'] ?? Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              child: Text(
+                component['text'] ?? 'Button',
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          );
+        case 'Container':
+          return Positioned(
+            left: position.dx,
+            top: position.dy,
+            child: Container(
+              width: component['width'] ?? 100.0,
+              height: component['height'] ?? 50.0,
+              decoration: BoxDecoration(
+                color: component['color'] ?? Colors.grey,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          );
+        default:
+          return const SizedBox.shrink();
+      }
+    }).toList();
   }
 
   Widget _buildSelectedNodePreview() {
@@ -10769,7 +10923,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   Widget _buildPreviewControls() {
     return Column(
       children: [
-        // Node info
+        // Website info
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -10779,14 +10933,14 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           child: Row(
             children: [
               Icon(
-                Icons.info_outline,
+                Icons.web,
                 color: Colors.white70,
                 size: 16,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  _getSelectedNodeInfo(),
+                  'Website Preview',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
@@ -10798,7 +10952,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
         ),
         const SizedBox(height: 8),
         
-        // Execution status
+        // Component count
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -10808,14 +10962,43 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           child: Row(
             children: [
               Icon(
-                Icons.play_circle_outline,
+                Icons.widgets,
+                color: Colors.blue,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '7 components',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        
+        // Interactive status
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A2A),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.touch_app,
                 color: Colors.green,
                 size: 16,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Ready to execute',
+                  'Interactive preview',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
