@@ -10371,36 +10371,54 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   Widget _buildMainCanvas() {
     return Container(
       color: const Color(0xFF393939),
-      child: Listener(
-        onPointerSignal: (pointerSignal) {
-          if (pointerSignal is PointerScrollEvent) {
-            _handleMouseWheel(pointerSignal);
-          }
-        },
-        child: GestureDetector(
-          onPanStart: _onPanStart,
-          onPanUpdate: _onPanUpdate,
-          onPanEnd: _onPanEnd,
-          onTapUp: _onCanvasTap,
-          child: Stack(
-            children: [
-              CustomPaint(
-                painter: BlenderNodeCanvasPainter(
-                  nodes: _nodes,
-                  connections: _connections,
-                  zoom: _zoom,
-                  panOffset: _panOffset,
-                  selectedNodeId: _selectedNodeId,
-                  isConnecting: _isConnecting,
-                  connectionStart: _connectionStart,
-                  connectionEndPos: _connectionEndPos,
+      child: Row(
+        children: [
+          // Nodes Editor Canvas (Left side - 70% width)
+          Expanded(
+            flex: 7,
+            child: Listener(
+              onPointerSignal: (pointerSignal) {
+                if (pointerSignal is PointerScrollEvent) {
+                  _handleMouseWheel(pointerSignal);
+                }
+              },
+              child: GestureDetector(
+                onPanStart: _onPanStart,
+                onPanUpdate: _onPanUpdate,
+                onPanEnd: _onPanEnd,
+                onTapUp: _onCanvasTap,
+                child: Stack(
+                  children: [
+                    CustomPaint(
+                      painter: BlenderNodeCanvasPainter(
+                        nodes: _nodes,
+                        connections: _connections,
+                        zoom: _zoom,
+                        panOffset: _panOffset,
+                        selectedNodeId: _selectedNodeId,
+                        isConnecting: _isConnecting,
+                        connectionStart: _connectionStart,
+                        connectionEndPos: _connectionEndPos,
+                      ),
+                      size: Size.infinite,
+                    ),
+                    _buildNodeOverlays(),
+                  ],
                 ),
-                size: Size.infinite,
               ),
-              _buildNodeOverlays(),
-            ],
+            ),
           ),
-        ),
+          
+          // Preview Section (Right side - 30% width)
+          Container(
+            width: 1,
+            color: const Color(0xFF5A5A5A),
+          ),
+          Expanded(
+            flex: 3,
+            child: _buildPreviewSection(),
+          ),
+        ],
       ),
     );
   }
@@ -10410,7 +10428,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
       left: 20,
       top: 20,
       child: Container(
-        width: 300,
+        width: 280,
         height: 400,
         decoration: BoxDecoration(
           color: const Color(0xFF2D2D2D),
@@ -10550,6 +10568,573 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           onTap: () => _addNode(node),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildPreviewSection() {
+    return Container(
+      color: const Color(0xFF2D2D2D),
+      child: Column(
+        children: [
+          // Preview Header
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: const BoxDecoration(
+              color: Color(0xFF454545),
+              border: Border(bottom: BorderSide(color: Color(0xFF5A5A5A))),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.web, color: Colors.orange, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Website Preview',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.play_arrow, color: Colors.green, size: 20),
+                  onPressed: () => _runPreview(),
+                  tooltip: 'Run Preview',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.stop, color: Colors.red, size: 20),
+                  onPressed: () => _stopPreview(),
+                  tooltip: 'Stop Preview',
+                ),
+              ],
+            ),
+          ),
+          
+          // Preview Content
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A1A),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF5A5A5A)),
+              ),
+              child: Column(
+                children: [
+                  // Preview Canvas
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F0F0F),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: const Color(0xFF3A3A3A)),
+                      ),
+                      child: _buildPreviewCanvas(),
+                    ),
+                  ),
+                  
+                  // Preview Controls
+                  Container(
+                    height: 120,
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Website Components',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: _buildPreviewControls(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewCanvas() {
+    return Stack(
+      children: [
+        // Background grid
+        CustomPaint(
+          painter: PreviewGridPainter(),
+          size: Size.infinite,
+        ),
+        
+        // Website Preview
+        _buildWebsitePreview(),
+      ],
+    );
+  }
+
+  Widget _buildWebsitePreview() {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF5A5A5A)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          children: [
+            // Website background
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.white,
+            ),
+            
+            // Render all website components
+            ..._buildWebsiteComponents(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildWebsiteComponents() {
+    // Create sample components for the preview
+    return _buildSampleWebsiteComponents();
+  }
+
+  List<Widget> _buildSampleWebsiteComponents() {
+    // Create sample components for the preview with proper types
+    final components = <Map<String, dynamic>>[
+      {
+        'type': 'Text',
+        'text': 'Welcome to our website',
+        'position': const Offset(20, 20),
+        'fontSize': 20.0,
+        'color': Colors.black,
+        'isBold': true,
+      },
+      {
+        'type': 'Text',
+        'text': 'This is a sample website preview showing how your components will look.',
+        'position': const Offset(20, 50),
+        'fontSize': 12.0,
+        'color': Colors.black54,
+      },
+      {
+        'type': 'Button',
+        'text': 'Get Started',
+        'position': const Offset(20, 80),
+        'color': Colors.blue,
+      },
+      {
+        'type': 'Container',
+        'position': const Offset(20, 120),
+        'width': 150.0,
+        'height': 80.0,
+        'color': Colors.grey.shade200,
+      },
+      {
+        'type': 'Text',
+        'text': 'Feature Box',
+        'position': const Offset(30, 130),
+        'fontSize': 14.0,
+        'color': Colors.black87,
+        'isBold': true,
+      },
+      {
+        'type': 'Button',
+        'text': 'Learn More',
+        'position': const Offset(20, 210),
+        'color': Colors.green,
+      },
+      {
+        'type': 'Text',
+        'text': 'Footer text',
+        'position': const Offset(20, 250),
+        'fontSize': 10.0,
+        'color': Colors.grey,
+      },
+    ];
+
+    return components.map<Widget>((component) {
+      final type = component['type'] as String;
+      final position = component['position'] as Offset;
+      
+      switch (type) {
+        case 'Text':
+          return Positioned(
+            left: position.dx,
+            top: position.dy,
+            child: Text(
+              (component['text'] as String?) ?? 'Text',
+              style: TextStyle(
+                fontSize: (component['fontSize'] as double?) ?? 16.0,
+                fontWeight: (component['isBold'] as bool?) == true
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+                color: (component['color'] as Color?) ?? Colors.black,
+              ),
+            ),
+          );
+        case 'Button':
+          return Positioned(
+            left: position.dx,
+            top: position.dy,
+            child: ElevatedButton(
+              onPressed: () {
+                // Handle button click in preview
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Button clicked in preview'),
+                    backgroundColor: Colors.blue,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: (component['color'] as Color?) ?? Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              child: Text(
+                (component['text'] as String?) ?? 'Button',
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          );
+        case 'Container':
+          return Positioned(
+            left: position.dx,
+            top: position.dy,
+            child: Container(
+              width: (component['width'] as double?) ?? 100.0,
+              height: (component['height'] as double?) ?? 50.0,
+              decoration: BoxDecoration(
+                color: (component['color'] as Color?) ?? Colors.grey,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          );
+        default:
+          return const SizedBox.shrink();
+      }
+    }).toList();
+  }
+
+  Widget _buildSelectedNodePreview() {
+    final selectedNode = _nodes.firstWhere(
+      (node) => node['id'] == _selectedNodeId,
+      orElse: () => {},
+    );
+    
+    if (selectedNode.isEmpty) return _buildDefaultPreview();
+    
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Color(selectedNode['color'] ?? Colors.blue.value),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: Icon(
+              _getNodeIcon(selectedNode['type']),
+              color: Colors.white,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            selectedNode['name'] ?? 'Node',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _getNodeDescription(selectedNode['type']),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultPreview() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.account_tree,
+            color: Colors.white38,
+            size: 64,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Select a node to preview',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Click on any node in the editor to see its preview here',
+            style: const TextStyle(
+              color: Colors.white38,
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewControls() {
+    return Column(
+      children: [
+        // Website info
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A2A),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.web,
+                color: Colors.white70,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Website Preview',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        
+        // Component count
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A2A),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.widgets,
+                color: Colors.blue,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '7 components',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        
+        // Interactive status
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A2A),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.touch_app,
+                color: Colors.green,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Interactive preview',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getSelectedNodeInfo() {
+    if (_selectedNodeId == null) {
+      return 'No node selected';
+    }
+    
+    final selectedNode = _nodes.firstWhere(
+      (node) => node['id'] == _selectedNodeId,
+      orElse: () => {},
+    );
+    
+    if (selectedNode.isEmpty) {
+      return 'Node not found';
+    }
+    
+    final inputs = selectedNode['inputs']?.length ?? 0;
+    final outputs = selectedNode['outputs']?.length ?? 0;
+    
+    return '${selectedNode['name']} - ${inputs} inputs, ${outputs} outputs';
+  }
+
+  IconData _getNodeIcon(String? nodeType) {
+    switch (nodeType) {
+      case 'onclick_trigger':
+        return Icons.mouse;
+      case 'mouse_input':
+        return Icons.mouse;
+      case 'keyboard_input':
+        return Icons.keyboard;
+      case 'timer':
+        return Icons.timer;
+      case 'variable':
+        return Icons.storage;
+      case 'math_add':
+      case 'math_multiply':
+      case 'math_compare':
+      case 'math_random':
+        return Icons.functions;
+      case 'logic_if':
+      case 'logic_and':
+      case 'logic_or':
+      case 'logic_not':
+        return Icons.account_tree;
+      case 'run_animation':
+      case 'anim_move':
+      case 'anim_rotate':
+      case 'anim_scale':
+      case 'anim_fade':
+        return Icons.animation;
+      case 'output_log':
+      case 'output_variable':
+      case 'output_event':
+        return Icons.output;
+      default:
+        return Icons.account_tree;
+    }
+  }
+
+  String _getNodeDescription(String? nodeType) {
+    switch (nodeType) {
+      case 'onclick_trigger':
+        return 'Triggers when element is clicked';
+      case 'mouse_input':
+        return 'Captures mouse input events';
+      case 'keyboard_input':
+        return 'Captures keyboard input events';
+      case 'timer':
+        return 'Executes after a time delay';
+      case 'variable':
+        return 'Stores and retrieves data';
+      case 'math_add':
+        return 'Adds two numeric values';
+      case 'math_multiply':
+        return 'Multiplies two numeric values';
+      case 'math_compare':
+        return 'Compares two values';
+      case 'math_random':
+        return 'Generates random values';
+      case 'logic_if':
+        return 'Conditional execution';
+      case 'logic_and':
+        return 'Logical AND operation';
+      case 'logic_or':
+        return 'Logical OR operation';
+      case 'logic_not':
+        return 'Logical NOT operation';
+      case 'run_animation':
+        return 'Runs an animation sequence';
+      case 'anim_move':
+        return 'Moves an element';
+      case 'anim_rotate':
+        return 'Rotates an element';
+      case 'anim_scale':
+        return 'Scales an element';
+      case 'anim_fade':
+        return 'Fades an element in/out';
+      case 'output_log':
+        return 'Outputs to console';
+      case 'output_variable':
+        return 'Sets a variable value';
+      case 'output_event':
+        return 'Triggers an event';
+      default:
+        return 'Node functionality';
+    }
+  }
+
+  void _runPreview() {
+    // TODO: Implement node execution preview
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Preview execution started'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _stopPreview() {
+    // TODO: Implement stop preview
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Preview execution stopped'),
+        backgroundColor: Colors.orange,
+      ),
     );
   }
 
@@ -11446,4 +12031,37 @@ class BlenderNodeCanvasPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// Custom painter for the preview grid
+class PreviewGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF2A2A2A)
+      ..strokeWidth = 0.5;
+
+    const gridSize = 20.0;
+    
+    // Draw vertical lines
+    for (double x = 0; x <= size.width; x += gridSize) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+    
+    // Draw horizontal lines
+    for (double y = 0; y <= size.height; y += gridSize) {
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
