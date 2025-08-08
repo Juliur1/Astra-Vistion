@@ -769,7 +769,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       },
     );
   }
-
   // Build existing nodes visualization
   Widget _buildExistingNodes(Map<String, dynamic> nodeData) {
     List nodes = nodeData['nodes'] ?? [];
@@ -1485,7 +1484,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
         print('Executing node: ${node['type']}');
     }
   }
-
   // Build full-screen preview mode
   Widget _buildFullScreenPreview() {
     return Scaffold(
@@ -1852,7 +1850,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     // Show nodes page if enabled
@@ -2647,7 +2644,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       ),
     );
   }
-
   Widget _buildIconButton(int index, IconData icon) {
     final isSelected = _selectedIndex == index;
     return Padding(
@@ -3324,7 +3320,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
         return Icons.touch_app_outlined;
     }
   }
-
   Widget _buildInteractionDetailsView() {
     // Get the currently selected component
     final selectedComponent = _screenComponents.firstWhere(
@@ -4115,7 +4110,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       ],
     );
   }
-
   // Method to build the Pages view (original content)
   Widget _buildPagesView() {
     return SingleChildScrollView(
@@ -4403,8 +4397,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                 ),
                 const Spacer(),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1A1A1A),
                     borderRadius: BorderRadius.circular(4),
@@ -4778,7 +4771,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
         return Icons.folder;
     }
   }
-
   // Method to build the Style view for the right sidebar
   Widget _buildStyleView() {
     return SingleChildScrollView(
@@ -5520,7 +5512,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       );
     }
   }
-
   // Animation playback methods
   void _playAnimation() {
     if (_selectedAnimationIndex == null ||
@@ -6249,7 +6240,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
 
     return tooltip;
   }
-
   // Create keyframe at current frame with selected element data
   void _createKeyframeAtCurrentFrame() {
     print(
@@ -6908,7 +6898,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       ],
     );
   }
-
   // Method to build component style view
   Widget _buildComponentStyleView(Map<String, dynamic> component) {
     final type = component['type'] as String;
@@ -7924,7 +7913,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
                       ),
                     ),
                   ),
-
                   // Box Shadow Details
                   if (_showBoxShadowControls &&
                       (component['hasShadow'] == true))
@@ -8288,7 +8276,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       child: Container(),
     );
   }
-
   // Update the screen preview to use settings
   Widget _buildScreenPreview() {
     return LayoutBuilder(
@@ -8841,7 +8828,6 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
       },
     );
   }
-
   // Helper method to build a component widget based on its type
   Widget _buildComponentWidget(Map<String, dynamic> component) {
     final type = component['type'] as String;
@@ -9554,9 +9540,7 @@ class _WebsiteEditorDashboardPageState extends State<WebsiteEditorDashboard> {
   }
 
   // Helper method to execute component interactions
-
   // }
-
   // 2. In the animation list onTap, set _selectedAnimationIndex
   Widget _buildKeyframeBar() {
     if (_selectedAnimationIndex == null ||
@@ -10135,7 +10119,6 @@ class BlenderNodesEditor extends StatefulWidget {
   @override
   _BlenderNodesEditorState createState() => _BlenderNodesEditorState();
 }
-
 class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   // Viewport controls
   double _zoom = 1.0;
@@ -10227,7 +10210,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF393939),
+      backgroundColor: const Color(0xFF2A2A2A),
       body: Focus(
         focusNode: _focusNode,
         onKeyEvent: _handleKeyEvent,
@@ -10280,13 +10263,13 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
     return Container(
       height: 60,
       decoration: const BoxDecoration(
-        color: Color(0xFF2D2D2D),
-        border: Border(bottom: BorderSide(color: Color(0xFF5A5A5A))),
+        color: Color(0xFF2A2A2A),
+        border: Border(bottom: BorderSide(color: Color(0xFF444444))),
       ),
       child: Row(
         children: [
           const SizedBox(width: 16),
-          Icon(Icons.account_tree, color: Colors.orange, size: 24),
+          Icon(Icons.account_tree, color: Color(0xFFFF6B35), size: 24),
           const SizedBox(width: 12),
           Text(
             'Nodes Editor - ${widget.interaction['nodeName'] ?? 'Untitled'}',
@@ -10316,7 +10299,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           ),
           
           const SizedBox(width: 16),
-          Container(width: 1, height: 30, color: const Color(0xFF5A5A5A)),
+          Container(width: 1, height: 30, color: const Color(0xFF444444)),
           const SizedBox(width: 16),
           
           // Action buttons
@@ -10327,7 +10310,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           ),
           
           const SizedBox(width: 16),
-          Container(width: 1, height: 30, color: const Color(0xFF5A5A5A)),
+          Container(width: 1, height: 30, color: const Color(0xFF444444)),
           const SizedBox(width: 16),
           
           // Navigation buttons
@@ -10370,7 +10353,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
 
   Widget _buildMainCanvas() {
     return Container(
-      color: const Color(0xFF393939),
+      color: const Color(0xFF2A2A2A),
       child: Listener(
         onPointerSignal: (pointerSignal) {
           if (pointerSignal is PointerScrollEvent) {
@@ -10430,7 +10413,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
-                color: Color(0xFF454545),
+                color: Color(0xFF333333),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
@@ -10562,9 +10545,9 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF2D2D2D),
+              color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFF5A5A5A)),
+              border: Border.all(color: const Color(0xFF444444)),
             ),
             child: Text(
               'Zoom: ${(_zoom * 100).toInt()}%',
@@ -10574,17 +10557,17 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF2D2D2D),
+              color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFF5A5A5A)),
+              border: Border.all(color: const Color(0xFF444444)),
             ),
             child: Column(
               children: [
-                _buildViewportButton(Icons.add, () => _zoomIn()),
-                Container(height: 1, color: const Color(0xFF5A5A5A)),
-                _buildViewportButton(Icons.remove, () => _zoomOut()),
-                Container(height: 1, color: const Color(0xFF5A5A5A)),
-                _buildViewportButton(Icons.center_focus_strong, () => _frameAll()),
+                                 _buildViewportButton(Icons.add, () => _zoomIn()),
+                 Container(height: 1, color: const Color(0xFF444444)),
+                                  _buildViewportButton(Icons.remove, () => _zoomOut()),
+                 Container(height: 1, color: const Color(0xFF444444)),
+                 _buildViewportButton(Icons.center_focus_strong, () => _frameAll()),
               ],
             ),
           ),
@@ -10611,8 +10594,8 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
     return Container(
       height: 50,
       decoration: const BoxDecoration(
-        color: Color(0xFF2D2D2D),
-        border: Border(top: BorderSide(color: Color(0xFF5A5A5A))),
+        color: Color(0xFF2A2A2A),
+        border: Border(top: BorderSide(color: Color(0xFF444444))),
       ),
       child: Row(
         children: [
@@ -10659,8 +10642,8 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
             icon: const Icon(Icons.save, size: 16),
             label: const Text('Save & Close'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
+                             backgroundColor: Color(0xFFFF6B35),
+               foregroundColor: Colors.white,
             ),
           ),
           const SizedBox(width: 16),
@@ -10777,6 +10760,26 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   }
 
   void _onCanvasTap(TapUpDetails details) {
+    final worldPos = (details.localPosition - _panOffset) / _zoom;
+
+    // Check delete button hit first on any node (small red circle at header right)
+    for (final node in _nodes) {
+      final double nodeX = node['x'] ?? 0.0;
+      final double nodeY = node['y'] ?? 0.0;
+      const double width = 150.0;
+      final deleteCenter = Offset(nodeX + width - 12, nodeY + 12);
+      if ((worldPos - deleteCenter).distance <= 8) {
+        setState(() {
+          final id = node['id'];
+          _nodes.removeWhere((n) => n['id'] == id);
+          _connections.removeWhere((c) => c['fromNode'] == id || c['toNode'] == id);
+          if (_selectedNodeId == id) _selectedNodeId = null;
+        });
+        _saveNodeData();
+        return;
+      }
+    }
+
     final nodeId = _getNodeAtPosition(details.localPosition);
     setState(() {
       _selectedNodeId = nodeId;
@@ -10911,7 +10914,6 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
     });
     _saveNodeData();
   }
-
   Widget _buildNodeOverlays() {
     return Stack(
       children: _nodes.where((node) => node['type'] == 'run_animation').map((node) {
@@ -10919,7 +10921,6 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
       }).toList(),
     );
   }
-
   Widget _buildAnimationNodeOverlay(Map<String, dynamic> node) {
     final x = (node['x'] ?? 0.0) * _zoom + _panOffset.dx;
     final y = (node['y'] ?? 0.0) * _zoom + _panOffset.dy;
@@ -11192,10 +11193,10 @@ class BlenderNodeCanvasPainter extends CustomPainter {
 
   void _drawGrid(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF4A4A4A)
-      ..strokeWidth = 0.5;
+      ..color = Colors.white.withOpacity(0.10)
+      ..strokeWidth = 1.0;
 
-    const gridSize = 50.0;
+    const gridSize = 20.0;
     
     // Calculate visible area
     final left = (-panOffset.dx / zoom);
@@ -11236,33 +11237,27 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     final rect = Rect.fromLTWH(x, y, width, height);
     
     // Node background
-    final bgPaint = Paint()
-      ..color = isSelected 
-        ? const Color(0xFF5A5A5A) 
-        : const Color(0xFF3A3A3A);
+    final bgPaint = Paint()..color = const Color(0xFF404040);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
       bgPaint,
     );
     
     // Node border
     final borderPaint = Paint()
-      ..color = isSelected 
-        ? Colors.orange 
-        : Color(node['color'] ?? Colors.blue.value)
+      ..color = isSelected ? const Color(0xFFFF6B35) : const Color(0xFF666666)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = isSelected ? 2.0 : 1.0;
+      ..strokeWidth = 2.0;
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
       borderPaint,
     );
     
     // Node header
     final headerRect = Rect.fromLTWH(x, y, width, 24);
-    final headerPaint = Paint()
-      ..color = Color(node['color'] ?? Colors.blue.value).withOpacity(0.8);
+    final headerPaint = Paint()..color = const Color(0xFF333333);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(headerRect, const Radius.circular(6)),
+      RRect.fromRectAndRadius(headerRect, const Radius.circular(8)),
       headerPaint,
     );
     
@@ -11273,7 +11268,7 @@ class BlenderNodeCanvasPainter extends CustomPainter {
         style: const TextStyle(
           color: Colors.white,
           fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -11290,13 +11285,16 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     final inputs = node['inputs'] as List<dynamic>? ?? [];
     final outputs = node['outputs'] as List<dynamic>? ?? [];
     
-    const socketRadius = 4.0;
+    const socketRadius = 6.0;
+    final borderPaint = Paint()
+      ..color = const Color(0xFF666666)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
     
     // Draw input sockets (left side)
     for (int i = 0; i < inputs.length; i++) {
       double socketY;
       if (node['type'] == 'run_animation') {
-        // Special positioning for Run Animation node to align with input fields
         if (i == 0) {
           socketY = y + 35; // Execute socket
         } else if (i == 1) {
@@ -11309,12 +11307,10 @@ class BlenderNodeCanvasPainter extends CustomPainter {
       } else {
         socketY = y + 30 + (i * 16);
       }
-      
-      final socketCenter = Offset(x - socketRadius, socketY);
-      
-      final socketPaint = Paint()
-        ..color = _getSocketColor(inputs[i]['type']);
-      canvas.drawCircle(socketCenter, socketRadius, socketPaint);
+      final center = Offset(x - socketRadius + 2, socketY);
+      final fillPaint = Paint()..color = const Color(0xFF2A2A2A);
+      canvas.drawCircle(center, socketRadius, fillPaint);
+      canvas.drawCircle(center, socketRadius, borderPaint);
       
       // Socket label
       final labelPainter = TextPainter(
@@ -11331,11 +11327,10 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     // Draw output sockets (right side)
     for (int i = 0; i < outputs.length; i++) {
       final socketY = y + 30 + (i * 16);
-      final socketCenter = Offset(x + width + socketRadius, socketY);
-      
-      final socketPaint = Paint()
-        ..color = _getSocketColor(outputs[i]['type']);
-      canvas.drawCircle(socketCenter, socketRadius, socketPaint);
+      final center = Offset(x + width + socketRadius - 2, socketY);
+      final fillPaint = Paint()..color = const Color(0xFFFF6B35);
+      canvas.drawCircle(center, socketRadius, fillPaint);
+      canvas.drawCircle(center, socketRadius, borderPaint);
       
       // Socket label
       final labelPainter = TextPainter(
@@ -11372,8 +11367,8 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     
     // Draw bezier curve
     final paint = Paint()
-      ..color = _getSocketColor(connection['dataType'] ?? 'exec')
-      ..strokeWidth = 3.0
+      ..color = const Color(0xFFFF6B35)
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
     
     _drawBezierConnection(canvas, fromPos, toPos, paint);
@@ -11386,8 +11381,8 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     final endPos = (connectionEndPos! - panOffset) / zoom;
     
     final paint = Paint()
-      ..color = Colors.orange.withOpacity(0.8)
-      ..strokeWidth = 3.0
+      ..color = const Color(0xFFFF6B35).withOpacity(0.7)
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
     
     _drawBezierConnection(canvas, startPos, endPos, paint);
