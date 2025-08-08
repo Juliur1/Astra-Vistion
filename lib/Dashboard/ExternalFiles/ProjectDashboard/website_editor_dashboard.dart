@@ -10227,7 +10227,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF393939),
+      backgroundColor: const Color(0xFF1A1A1A), // Match HTML dark background
       body: Focus(
         focusNode: _focusNode,
         onKeyEvent: _handleKeyEvent,
@@ -10370,7 +10370,7 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
 
   Widget _buildMainCanvas() {
     return Container(
-      color: const Color(0xFF393939),
+      color: const Color(0xFF2A2A2A), // Match HTML node canvas background
       child: Listener(
         onPointerSignal: (pointerSignal) {
           if (pointerSignal is PointerScrollEvent) {
@@ -10410,106 +10410,78 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
       left: 20,
       top: 20,
       child: Container(
-        width: 300,
+        width: 200, // Match HTML sidebar width
         height: 400,
         decoration: BoxDecoration(
-          color: const Color(0xFF2D2D2D),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF5A5A5A)),
+          color: const Color(0xFF2A2A2A), // Match HTML toolbar background
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: const Color(0xFF444444)), // Match HTML border
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Column(
           children: [
-            // Header
+            // Header (match HTML style)
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(15),
               decoration: const BoxDecoration(
-                color: Color(0xFF454545),
+                color: Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(4),
+                  topRight: Radius.circular(4),
                 ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.library_add, color: Colors.orange, size: 20),
-                  const SizedBox(width: 8),
                   const Text(
                     'Add Node',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFFFF6B35), // Match HTML orange accent
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const Spacer(),
                   InkWell(
                     onTap: () => setState(() => _showNodeLibrary = false),
-                    child: const Icon(Icons.close, color: Colors.white70, size: 18),
+                    child: const Icon(Icons.close, color: Colors.white70, size: 16),
                   ),
                 ],
               ),
             ),
             
-            // Search bar
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: TextField(
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Search nodes...',
-                  hintStyle: TextStyle(color: Colors.white38),
-                  prefixIcon: Icon(Icons.search, color: Colors.white38),
-                  filled: true,
-                  fillColor: const Color(0xFF1A1A1A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-              ),
-            ),
-            
-            // Node categories
+            // Node categories (match HTML layout)
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.zero,
                 children: [
-                  _buildNodeCategory('Input', [
-                    {'name': 'Mouse Input', 'type': 'mouse_input', 'color': Colors.blue},
-                    {'name': 'Keyboard Input', 'type': 'keyboard_input', 'color': Colors.blue},
-                    {'name': 'Timer', 'type': 'timer', 'color': Colors.blue},
-                    {'name': 'Variable', 'type': 'variable', 'color': Colors.blue},
+                  _buildNodeCategory('Geometry', [
+                    {'name': 'Cube', 'type': 'cube', 'color': const Color(0xFF4A90E2)},
+                    {'name': 'Sphere', 'type': 'sphere', 'color': const Color(0xFF4A90E2)},
+                    {'name': 'Plane', 'type': 'plane', 'color': const Color(0xFF4A90E2)},
+                    {'name': 'Cylinder', 'type': 'cylinder', 'color': const Color(0xFF4A90E2)},
                   ]),
-                  _buildNodeCategory('Math', [
-                    {'name': 'Add', 'type': 'math_add', 'color': Colors.purple},
-                    {'name': 'Multiply', 'type': 'math_multiply', 'color': Colors.purple},
-                    {'name': 'Compare', 'type': 'math_compare', 'color': Colors.purple},
-                    {'name': 'Random', 'type': 'math_random', 'color': Colors.purple},
+                  _buildNodeCategory('Materials', [
+                    {'name': 'Basic Material', 'type': 'material', 'color': const Color(0xFF7ED321)},
+                    {'name': 'Texture', 'type': 'texture', 'color': const Color(0xFF7ED321)},
+                    {'name': 'Color', 'type': 'color', 'color': const Color(0xFF7ED321)},
                   ]),
-                  _buildNodeCategory('Logic', [
-                    {'name': 'If/Else', 'type': 'logic_if', 'color': Colors.green},
-                    {'name': 'And', 'type': 'logic_and', 'color': Colors.green},
-                    {'name': 'Or', 'type': 'logic_or', 'color': Colors.green},
-                    {'name': 'Not', 'type': 'logic_not', 'color': Colors.green},
+                  _buildNodeCategory('Transform', [
+                    {'name': 'Transform', 'type': 'transform', 'color': const Color(0xFFBD10E0)},
+                    {'name': 'Rotate', 'type': 'rotate', 'color': const Color(0xFFBD10E0)},
                   ]),
                   _buildNodeCategory('Animation', [
-                    {'name': 'Run Animation', 'type': 'run_animation', 'color': Colors.orange},
-                    {'name': 'Move', 'type': 'anim_move', 'color': Colors.orange},
-                    {'name': 'Rotate', 'type': 'anim_rotate', 'color': Colors.orange},
-                    {'name': 'Scale', 'type': 'anim_scale', 'color': Colors.orange},
-                    {'name': 'Fade', 'type': 'anim_fade', 'color': Colors.orange},
+                    {'name': 'Run Animation', 'type': 'run_animation', 'color': const Color(0xFFFF6B35)},
+                    {'name': 'Move', 'type': 'anim_move', 'color': const Color(0xFFFF6B35)},
+                    {'name': 'Scale', 'type': 'anim_scale', 'color': const Color(0xFFFF6B35)},
                   ]),
                   _buildNodeCategory('Output', [
-                    {'name': 'Console Log', 'type': 'output_log', 'color': Colors.red},
-                    {'name': 'Set Variable', 'type': 'output_variable', 'color': Colors.red},
-                    {'name': 'Trigger Event', 'type': 'output_event', 'color': Colors.red},
+                    {'name': 'Scene Output', 'type': 'output', 'color': const Color(0xFFD0021B)},
                   ]),
                 ],
               ),
@@ -10521,35 +10493,51 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
   }
 
   Widget _buildNodeCategory(String title, List<Map<String, dynamic>> nodes) {
-    return ExpansionTile(
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      iconColor: Colors.white70,
-      collapsedIconColor: Colors.white38,
-      children: nodes.map((node) {
-        return ListTile(
-          dense: true,
-          leading: Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: node['color'],
-              shape: BoxShape.circle,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Category header (match HTML style)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFFFF6B35), // Match HTML orange accent
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          title: Text(
-            node['name'],
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
-          ),
-          onTap: () => _addNode(node),
-        );
-      }).toList(),
+        ),
+        // Node buttons (match HTML button style)
+        ...nodes.map((node) {
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(15, 0, 15, 5),
+            child: Material(
+              color: const Color(0xFF3A3A3A), // Match HTML button background
+              borderRadius: BorderRadius.circular(4),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(4),
+                onTap: () => _addNode(node),
+                onHover: (isHovered) {
+                  // Could add hover effects here if needed
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Text(
+                    node['name'],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+        const SizedBox(height: 10), // Spacing between categories
+      ],
     );
   }
 
@@ -10808,7 +10796,8 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
 
   Map<String, dynamic>? _getSocketAtPosition(Offset position) {
     final worldPos = (position - _panOffset) / _zoom;
-    const socketRadius = 8.0; // Larger hit area
+    const hitRadius = 10.0; // Larger hit area for better usability
+    const socketRadius = 6.0;
     
     for (final node in _nodes) {
       final nodeX = node['x'] ?? 0.0;
@@ -10822,21 +10811,21 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
         if (node['type'] == 'run_animation') {
           // Special positioning for Run Animation node to align with input fields
           if (i == 0) {
-            socketY = nodeY + 35; // Execute socket
+            socketY = nodeY + 38; // Execute socket
           } else if (i == 1) {
-            socketY = nodeY + 70; // Delay socket (align with text input)
+            socketY = nodeY + 73; // Delay socket (align with text input)
           } else if (i == 2) {
-            socketY = nodeY + 98; // Animation socket (align with dropdown)
+            socketY = nodeY + 101; // Animation socket (align with dropdown)
           } else {
-            socketY = nodeY + 30 + (i * 16);
+            socketY = nodeY + 35 + (i * 18);
           }
         } else {
-          socketY = nodeY + 30 + (i * 16);
+          socketY = nodeY + 35 + (i * 18); // Adjusted for new header height
         }
         
-        final socketCenter = Offset(nodeX - 4, socketY);
+        final socketCenter = Offset(nodeX - socketRadius, socketY);
         
-        if ((worldPos - socketCenter).distance <= socketRadius) {
+        if ((worldPos - socketCenter).distance <= hitRadius) {
           return {
             'nodeId': node['id'],
             'type': 'input',
@@ -10850,10 +10839,10 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
       // Check output sockets
       final outputs = node['outputs'] as List<dynamic>? ?? [];
       for (int i = 0; i < outputs.length; i++) {
-        final socketY = nodeY + 30 + (i * 16);
-        final socketCenter = Offset(nodeX + nodeWidth + 4, socketY);
+        final socketY = nodeY + 35 + (i * 18); // Adjusted for new header height
+        final socketCenter = Offset(nodeX + nodeWidth + socketRadius, socketY);
         
-        if ((worldPos - socketCenter).distance <= socketRadius) {
+        if ((worldPos - socketCenter).distance <= hitRadius) {
           return {
             'nodeId': node['id'],
             'type': 'output',
@@ -10925,8 +10914,8 @@ class _BlenderNodesEditorState extends State<BlenderNodesEditor> {
     final y = (node['y'] ?? 0.0) * _zoom + _panOffset.dy;
     
     return Positioned(
-      left: x + 8 * _zoom,
-      top: y + 60 * _zoom, // Moved down more to fit in larger node
+      left: x + 12 * _zoom, // Match new node padding
+      top: y + 65 * _zoom, // Adjusted for new header height
       child: Container(
         width: 134 * _zoom,
         child: Column(
@@ -11191,11 +11180,12 @@ class BlenderNodeCanvasPainter extends CustomPainter {
   }
 
   void _drawGrid(Canvas canvas, Size size) {
+    // Match HTML grid pattern with rgba(255,255,255,0.1)
     final paint = Paint()
-      ..color = const Color(0xFF4A4A4A)
-      ..strokeWidth = 0.5;
+      ..color = Colors.white.withOpacity(0.1)
+      ..strokeWidth = 1.0;
 
-    const gridSize = 50.0;
+    const gridSize = 20.0; // Match HTML 20px grid size
     
     // Calculate visible area
     final left = (-panOffset.dx / zoom);
@@ -11235,51 +11225,89 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     
     final rect = Rect.fromLTWH(x, y, width, height);
     
-    // Node background
+    // Draw shadow first (like HTML box-shadow)
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0);
+    final shadowRect = rect.shift(const Offset(0, 2));
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(shadowRect, const Radius.circular(8)),
+      shadowPaint,
+    );
+    
+    // Node background (modern design like HTML)
     final bgPaint = Paint()
       ..color = isSelected 
-        ? const Color(0xFF5A5A5A) 
-        : const Color(0xFF3A3A3A);
+        ? const Color(0xFF404040) 
+        : const Color(0xFF404040); // Match HTML #404040
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+      RRect.fromRectAndRadius(rect, const Radius.circular(8)), // Increased border radius
       bgPaint,
     );
     
-    // Node border
+    // Node border (more prominent when selected)
     final borderPaint = Paint()
       ..color = isSelected 
-        ? Colors.orange 
-        : Color(node['color'] ?? Colors.blue.value)
+        ? const Color(0xFFFF6B35) // Match HTML orange #ff6b35
+        : const Color(0xFF666666) // Match HTML #666
       ..style = PaintingStyle.stroke
-      ..strokeWidth = isSelected ? 2.0 : 1.0;
+      ..strokeWidth = 2.0; // Consistent border width
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
       borderPaint,
     );
     
-    // Node header
-    final headerRect = Rect.fromLTWH(x, y, width, 24);
+    // Node header (darker background like HTML)
+    final headerRect = Rect.fromLTWH(x, y, width, 28); // Slightly taller
     final headerPaint = Paint()
-      ..color = Color(node['color'] ?? Colors.blue.value).withOpacity(0.8);
+      ..color = const Color(0xFF333333); // Match HTML header color
     canvas.drawRRect(
-      RRect.fromRectAndRadius(headerRect, const Radius.circular(6)),
+      RRect.fromRectAndRadius(headerRect, const Radius.circular(6)), // Rounded top corners only
       headerPaint,
     );
     
-    // Node title
+    // Node title (better typography)
     final textPainter = TextPainter(
       text: TextSpan(
         text: node['name'] ?? 'Node',
         style: const TextStyle(
           color: Colors.white,
           fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.bold, // Bold like HTML
         ),
       ),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(x + 8, y + 6));
+    textPainter.paint(canvas, Offset(x + 12, y + 8)); // Better padding
+    
+    // Draw delete button area (visual indicator)
+    if (isSelected) {
+      final deleteButtonRect = Rect.fromLTWH(x + width - 20, y + 4, 16, 16);
+      final deleteButtonPaint = Paint()
+        ..color = const Color(0xFFFF4757); // Match HTML delete button color
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(deleteButtonRect, const Radius.circular(8)),
+        deleteButtonPaint,
+      );
+      
+      // Draw X symbol
+      final xPaint = Paint()
+        ..color = Colors.white
+        ..strokeWidth = 1.5
+        ..style = PaintingStyle.stroke;
+      final center = deleteButtonRect.center;
+      canvas.drawLine(
+        Offset(center.dx - 4, center.dy - 4),
+        Offset(center.dx + 4, center.dy + 4),
+        xPaint,
+      );
+      canvas.drawLine(
+        Offset(center.dx + 4, center.dy - 4),
+        Offset(center.dx - 4, center.dy + 4),
+        xPaint,
+      );
+    }
     
     // Input/Output sockets
     _drawSockets(canvas, node, x, y, width, height);
@@ -11290,7 +11318,7 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     final inputs = node['inputs'] as List<dynamic>? ?? [];
     final outputs = node['outputs'] as List<dynamic>? ?? [];
     
-    const socketRadius = 4.0;
+    const socketRadius = 6.0; // Larger sockets like HTML (12px width/height = 6px radius)
     
     // Draw input sockets (left side)
     for (int i = 0; i < inputs.length; i++) {
@@ -11298,56 +11326,80 @@ class BlenderNodeCanvasPainter extends CustomPainter {
       if (node['type'] == 'run_animation') {
         // Special positioning for Run Animation node to align with input fields
         if (i == 0) {
-          socketY = y + 35; // Execute socket
+          socketY = y + 38; // Execute socket
         } else if (i == 1) {
-          socketY = y + 70; // Delay socket (align with text input)
+          socketY = y + 73; // Delay socket (align with text input)
         } else if (i == 2) {
-          socketY = y + 98; // Animation socket (align with dropdown)
+          socketY = y + 101; // Animation socket (align with dropdown)
         } else {
-          socketY = y + 30 + (i * 16);
+          socketY = y + 35 + (i * 18);
         }
       } else {
-        socketY = y + 30 + (i * 16);
+        socketY = y + 35 + (i * 18); // Adjusted for new header height
       }
       
       final socketCenter = Offset(x - socketRadius, socketY);
       
-      final socketPaint = Paint()
-        ..color = _getSocketColor(inputs[i]['type']);
-      canvas.drawCircle(socketCenter, socketRadius, socketPaint);
+      // Draw socket border (like HTML)
+      final borderPaint = Paint()
+        ..color = const Color(0xFF666666)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      canvas.drawCircle(socketCenter, socketRadius, borderPaint);
       
-      // Socket label
+      // Draw socket fill (input sockets have dark background like HTML)
+      final socketPaint = Paint()
+        ..color = const Color(0xFF2A2A2A); // Dark background for inputs
+      canvas.drawCircle(socketCenter, socketRadius - 1, socketPaint);
+      
+      // Socket label (better styling)
       final labelPainter = TextPainter(
         text: TextSpan(
           text: inputs[i]['name'],
-          style: const TextStyle(color: Colors.white70, fontSize: 10),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w400,
+          ),
         ),
         textDirection: TextDirection.ltr,
       );
       labelPainter.layout();
-      labelPainter.paint(canvas, Offset(x + 8, socketY - 6));
+      labelPainter.paint(canvas, Offset(x + 12, socketY - 6));
     }
     
     // Draw output sockets (right side)
     for (int i = 0; i < outputs.length; i++) {
-      final socketY = y + 30 + (i * 16);
+      final socketY = y + 35 + (i * 18); // Adjusted for new header height
       final socketCenter = Offset(x + width + socketRadius, socketY);
       
-      final socketPaint = Paint()
-        ..color = _getSocketColor(outputs[i]['type']);
-      canvas.drawCircle(socketCenter, socketRadius, socketPaint);
+      // Draw socket border
+      final borderPaint = Paint()
+        ..color = const Color(0xFF666666)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      canvas.drawCircle(socketCenter, socketRadius, borderPaint);
       
-      // Socket label
+      // Draw socket fill (output sockets have orange background like HTML)
+      final socketPaint = Paint()
+        ..color = const Color(0xFFFF6B35); // Orange background for outputs
+      canvas.drawCircle(socketCenter, socketRadius - 1, socketPaint);
+      
+      // Socket label (better styling)
       final labelPainter = TextPainter(
         text: TextSpan(
           text: outputs[i]['name'],
-          style: const TextStyle(color: Colors.white70, fontSize: 10),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w400,
+          ),
         ),
         textDirection: TextDirection.ltr,
       );
       labelPainter.layout();
       final labelWidth = labelPainter.width;
-      labelPainter.paint(canvas, Offset(x + width - 8 - labelWidth, socketY - 6));
+      labelPainter.paint(canvas, Offset(x + width - 12 - labelWidth, socketY - 6));
     }
   }
 
@@ -11370,10 +11422,10 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     
     if (fromPos == null || toPos == null) return;
     
-    // Draw bezier curve
+    // Draw bezier curve with HTML-style orange color
     final paint = Paint()
-      ..color = _getSocketColor(connection['dataType'] ?? 'exec')
-      ..strokeWidth = 3.0
+      ..color = const Color(0xFFFF6B35) // Match HTML connection color
+      ..strokeWidth = 2.0 // Match HTML stroke width
       ..style = PaintingStyle.stroke;
     
     _drawBezierConnection(canvas, fromPos, toPos, paint);
@@ -11394,15 +11446,15 @@ class BlenderNodeCanvasPainter extends CustomPainter {
   }
 
   void _drawBezierConnection(Canvas canvas, Offset start, Offset end, Paint paint) {
-    // Calculate control points for bezier curve
-    final dx = (end.dx - start.dx).abs();
-    final controlOffset = dx * 0.5 + 50;
+    // Calculate control points for bezier curve (match HTML curve style)
+    final dx = end.dx - start.dx;
+    final controlOffset = dx * 0.7; // Match HTML curve style with 70% control point
     
     final path = Path();
     path.moveTo(start.dx, start.dy);
     path.cubicTo(
-      start.dx + controlOffset, start.dy,  // Control point 1
-      end.dx - controlOffset, end.dy,      // Control point 2
+      start.dx + controlOffset, start.dy,  // Control point 1 (horizontal from start)
+      start.dx + controlOffset, end.dy,    // Control point 2 (horizontal to end)
       end.dx, end.dy,                      // End point
     );
     
@@ -11420,27 +11472,28 @@ class BlenderNodeCanvasPainter extends CustomPainter {
     final nodeX = node['x'] ?? 0.0;
     final nodeY = node['y'] ?? 0.0;
     const nodeWidth = 150.0;
+    const socketRadius = 6.0;
     
     double socketY;
     if (node['type'] == 'run_animation' && socketType == 'input') {
       // Special positioning for Run Animation node input sockets
       if (index == 0) {
-        socketY = nodeY + 35; // Execute socket
+        socketY = nodeY + 38; // Execute socket
       } else if (index == 1) {
-        socketY = nodeY + 70; // Delay socket
+        socketY = nodeY + 73; // Delay socket
       } else if (index == 2) {
-        socketY = nodeY + 98; // Animation socket
+        socketY = nodeY + 101; // Animation socket
       } else {
-        socketY = nodeY + 30 + (index * 16);
+        socketY = nodeY + 35 + (index * 18);
       }
     } else {
-      socketY = nodeY + 30 + (index * 16);
+      socketY = nodeY + 35 + (index * 18); // Adjusted for new header height
     }
     
     if (socketType == 'output') {
-      return Offset(nodeX + nodeWidth + 4, socketY);
+      return Offset(nodeX + nodeWidth + socketRadius, socketY);
     } else {
-      return Offset(nodeX - 4, socketY);
+      return Offset(nodeX - socketRadius, socketY);
     }
   }
 
